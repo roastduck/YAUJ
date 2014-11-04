@@ -1,0 +1,15 @@
+/*
+!.gitignore
+!function.cpp
+!function.h
+!interpreter.cpp
+!interpreter.h
+!lex.yy.c
+!makefile
+!mystr.c
+!mystr.h
+!parser.l
+!parser.tab.c
+!parser.tab.h
+!parser.y
+
