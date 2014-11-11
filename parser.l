@@ -48,6 +48,8 @@ Z       [zZ]
 {F}{A}{L}{S}{E}				{ cn2(&yylval," false "); return(FALSE); }
 {F}{O}{R}{E}{A}{C}{H}			{ cn2(&yylval," foreach "); return(FOREACH); }
 {A}{S}						{ cn2(&yylval," as "); return(AS); }
+{B}{R}{E}{A}{K}				{ cn2(&yylval," break "); return(BREAK); }
+{C}{O}{N}{T}{I}{N}{U}{E}			{ cn2(&yylval," continue "); return(CONTINUE); }
 "->"							{ cn3(&yylval,yytext,yyleng); return(ARROW); }
 "+"							{ cn3(&yylval,yytext,yyleng); return('+'); }
 "-"							{ cn3(&yylval,yytext,yyleng); return('-'); }

@@ -14,6 +14,7 @@
 #include <stdexcept>
 #include <sandbox.h>
 #include "interpreter.h"
+#include "config.h"
 
 namespace func
 {
@@ -25,16 +26,16 @@ namespace func
 	// report
 	void report(const iter &score);
 	void report(const iter &score, const iter &message);
+	void log(const iter &content);
 
 	// execute
 	iter exec(
-			const iter &prog,
+			const iter &comm,
+			const iter &tl = _I_(new v_int(DEFAULT_CPU_LIMIT)),
+			const iter &ml = _I_(new v_int(DEFAULT_MEMORY_LIMIT)),
 			const iter &in = _I_(new v_str("/dev/null")),
 			const iter &out = _I_(new v_str("/dev/null")),
-			const iter &tl = _I_(new v_int(1000)),
-			const iter &ml = _I_(new v_int(262144)),
-			const iter &err = _I_(new v_str("/dev/null")),
-			const iter &param = _I_(new v_str("/dev/null"))
+			const iter &err = _I_(new v_str("/dev/null"))
 		    ); 
 }
 

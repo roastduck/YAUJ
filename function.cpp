@@ -36,51 +36,71 @@ namespace func
 		std::cout << std::fixed << score->as_float() << ' ' << message->as_str() << std::endl;
 	}
 
+	void log(const iter &content)
+	{
+		std::cerr << content->as_str() << std::endl;
+	}
+	
 	// execute
 
-	iter exec(const iter &prog, const iter &in, const iter &out, const iter &tl, const iter &ml, const iter &err, const iter &param)
+	iter exec(const iter &comm, const iter &tl, const iter &ml, const iter &in, const iter &out, const iter &err)
 	{
 		std::map<std::string,iter> ret;
-		std::string PROG, IN, OUT, ERR, PARAM;
+		std::string COMM, IN, OUT, ERR;
 		int TL, ML;
-		PROG = prog->as_str();
+		COMM = comm->as_str();
 		IN = in->as_str();
 		OUT = out->as_str();
 		TL = tl->as_int();
 		ML = ml->as_int();
 		ERR = err->as_str();
-		PARAM = param->as_str();
+		if (COMM[0]!='/') COMM=RUN_PATH+COMM;
+		if (IN[0]!='/') IN=RUN_PATH+IN;
+		if (OUT[0]!='/') OUT=RUN_PATH+OUT;
+		if (ERR[0]!='/') ERR=RUN_PATH+ERR;
 		int in_no, out_no, err_no;
-		in_no = open(IN.c_str(), O_RDONLY);
-		out_no = open(OUT.c_str(), O_WRONLY|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
-		err_no = open(ERR.c_str(), O_WRONLY|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
-		if (!~in_no)
-			throw std::runtime_error(std::string("ERROR OPEN STDIN: ") + strerror(errno));
-		if (!~out_no)
-			throw std::runtime_error(std::string("ERROR OPEN STDOUT: ") + strerror(errno));
-		if (!~err_no)
-			throw std::runtime_error(std::string("ERROR OPEN STDERR: ") + strerror(errno));
 		sandbox_t sbox;
-		sbox.task.ifd = in_no;
-		sbox.task.ofd = out_no;
-		sbox.task.efd = err_no;
-		sbox.task.quota[S_QUOTA_WALLCLOCK] = 60000;
-		sbox.task.quota[S_QUOTA_CPU] = TL;
-		sbox.task.quota[S_QUOTA_MEMORY] = ML;
-		sbox.task.quota[S_QUOTA_DISK] = 104857600;
-		if (!sandbox_check(&sbox)) throw std::runtime_error("SANDBOX CHECK FAILED");
+		try
+		{
+			in_no = open(IN.c_str(), O_RDONLY);
+			out_no = open(OUT.c_str(), O_WRONLY|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
+			err_no = open(ERR.c_str(), O_WRONLY|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
+			if (!~in_no)
+				throw std::runtime_error(std::string("ERROR OPEN STDIN: ") + strerror(errno));
+			if (!~out_no)
+				throw std::runtime_error(std::string("ERROR OPEN STDOUT: ") + strerror(errno));
+			if (!~err_no)
+				throw std::runtime_error(std::string("ERROR OPEN STDERR: ") + strerror(errno));
+			char _comm[COMMAND_BUFF_MAX], *_argv[2]={_comm,NULL};
+			strcpy(_comm,COMM.c_str());
+			if (sandbox_init(&sbox,(const char**)_argv)) throw std::runtime_error("SANDBOX INITIALIZATION FAILED");
+			sbox.task.ifd = in_no;
+			sbox.task.ofd = out_no;
+			sbox.task.efd = err_no;
+			sbox.task.quota[S_QUOTA_WALLCLOCK] = DEFAULT_WALLCLOCK_LIMIT;
+			sbox.task.quota[S_QUOTA_CPU] = TL;
+			sbox.task.quota[S_QUOTA_MEMORY] = ML;
+			sbox.task.quota[S_QUOTA_DISK] = DEFAULT_OUTPUT_LIMIT;
+			if (!sandbox_check(&sbox)) throw std::runtime_error("SANDBOX CHECK FAILED");
+		} catch (const std::runtime_error &e)
+		{
+			if (~in_no) close(in_no);
+			if (~out_no) close(out_no);
+			if (~err_no) close(err_no);
+			throw e;
+		}
 		result_t res = *sandbox_execute(&sbox);
 		ret["status"] = _I_(new v_str(
-					1 ? "accept" :
-					2 ? "restricted function" :
-					3 ? "memory limit exceed" :
-					4 ? "output limit exceed" :
-					5 ? "time limit exceed" :
-					6 ? "run time error" :
-					7 ? "abnormal termination" :
-					8 ? "internal error" :
-					9 ? "bad policy" :
-					    "unknown error"
+					sbox.result == 1 ? "accept" :
+					sbox.result == 2 ? "restricted function" :
+					sbox.result == 3 ? "memory limit exceed" :
+					sbox.result == 4 ? "output limit exceed" :
+					sbox.result == 5 ? "time limit exceed" :
+					sbox.result == 6 ? "run time error" :
+					sbox.result == 7 ? "abnormal termination" :
+					sbox.result == 8 ? "internal error" :
+					sbox.result == 9 ? "bad policy" :
+								    "unknown error"
 					));
 		ret["time"] = _I_(new v_int(ts2ms(sbox.stat.cpu_info.clock)));
 		ret["memory"] = _I_(new v_int(sbox.stat.mem_info.vsize_peak));

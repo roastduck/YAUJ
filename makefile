@@ -1,4 +1,4 @@
-main : main.cpp interpreter.cpp function.cpp interpreter.h function.h
+main : main.cpp interpreter.cpp function.cpp interpreter.h function.h config.h
 	g++ main.cpp interpreter.cpp function.cpp -o main -std=c++11 -g -lsandbox
 
 main.cpp : parser src.txt

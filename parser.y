@@ -39,7 +39,7 @@ inline void addSymbol(char *s)
 
 %token IDENTIFIER INTEGER FLOAT EQ FEQ NEQ NFEQ AND OR FOR WHILE DO IF VMINUS VPOSI
 %token PLUSPLUS MINUSMINUS VFPLUSPLUS VFMINUSMINUS ELSE TRUE FALSE STR SUBACCESS
-%token FOREACH ARROW AS
+%token FOREACH ARROW AS BREAK CONTINUE
 
 %right '='
 %left OR
@@ -106,6 +106,8 @@ block_or_stmt :
 
 stmt :
 	expr ';'				{ cn2(&t1,";\n"), cat2(&$$,&$1,&t1); }
+|	BREAK ';'				{ cn2(&t1,";\n"), cat2(&$$,&$1,&t1); }
+|	CONTINUE ';'			{ cn2(&t1,";\n"), cat2(&$$,&$1,&t1); }
 |	if	
 |	while
 |	do_while

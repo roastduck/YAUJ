@@ -72,8 +72,10 @@ extern int yydebug;
     FOREACH = 282,
     ARROW = 283,
     AS = 284,
-    LEQ = 285,
-    GEQ = 286
+    BREAK = 285,
+    CONTINUE = 286,
+    LEQ = 287,
+    GEQ = 288
   };
 #endif
 

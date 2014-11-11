@@ -55,10 +55,9 @@ bool v_int::as_bool() const
 }
 std::string v_int::as_str() const
 {
-	std::string ret;
-	std::ostringstream ss(ret);
+	std::ostringstream ss;
 	ss << data;
-	return ret;
+	return ss.str();
 }
 v_base_ptr v_int::clone() const
 {
@@ -81,10 +80,9 @@ bool v_float::as_bool() const
 }
 std::string v_float::as_str() const
 {
-	std::string ret;
-	std::ostringstream ss(ret);
+	std::ostringstream ss;
 	ss << data;
-	return ret;
+	return ss.str();
 }
 v_base_ptr v_float::clone() const
 {
