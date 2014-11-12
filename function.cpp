@@ -38,7 +38,7 @@ namespace func
 
 	void log(const iter &content)
 	{
-		std::cerr << content->as_str() << std::endl;
+		std::clog << content->as_str() << std::endl;
 	}
 	
 	// execute
@@ -104,11 +104,74 @@ namespace func
 					));
 		ret["time"] = _I_(new v_int(ts2ms(sbox.stat.cpu_info.clock)));
 		ret["memory"] = _I_(new v_int(sbox.stat.mem_info.vsize_peak));
+		ret["exitcode"] = _I_(new v_int(sbox.stat.exitcode));
 		sandbox_fini(&sbox);
 		close(in_no);
 		close(out_no);
 		close(err_no);
 		return _I_(new v_dict(ret));
 	}
+	
+	// compile
+	
+	iter compile(const iter &language, const iter &source, const iter &target, const iter &O2, const iter &define)
+	{
+		std::string _LANG, _TAR;
+		bool _O2;
+		std::vector<std::string> _SRC, _DEF;
+		_LANG = language->as_str();
+		for (const iter &x: source->as_list())
+		{
+			_SRC.push_back(x->as_str());
+			if (_SRC.back()[0]!='/') _SRC.back() = RUN_PATH + _SRC.back();
+		}
+		_TAR = target->as_str();
+		if (_TAR[0]!='/') _TAR = RUN_PATH + _TAR;
+		_O2 = O2->as_bool();
+		for (const iter &x: define->as_list()) _DEF.push_back(x->as_str());
+		std::string cmd;
+		if (_LANG == "c++")
+		{
+			cmd = "g++ ";
+			for (const std::string &x: _SRC) cmd += x + " ";
+			cmd += " -o " + _TAR;
+			if (_O2) cmd += " -O2 ";
+			for (const std::string &x: _DEF) cmd += " -D" + x;
+		} else
+		if (_LANG == "c++11")
+		{
+			cmd = "g++ -std=c++11 ";
+			for (const std::string &x: _SRC) cmd += x + " ";
+			cmd += " -o " + _TAR;
+			if (_O2) cmd += " -O2 ";
+			for (const std::string &x: _DEF) cmd += " -D" + x;
+		} else
+		if (_LANG == "c")
+		{
+			cmd = "gcc ";
+			for (const std::string &x: _SRC) cmd += x + " ";
+			cmd += " -o " + _TAR;
+			if (_O2) cmd += " -O2 ";
+			for (const std::string &x: _DEF) cmd += " -D" + x;
+		} else
+		if (_LANG == "pascal")
+		{
+			cmd = "fpc ";
+			for (const std::string &x: _SRC) cmd += x + " ";
+			cmd += " -o" + _TAR;
+			if (_O2) cmd += " -O2 ";
+			for (const std::string &x: _DEF) cmd += " -d" + x;
+		} else
+			throw std::runtime_error("unknown language");
+		cmd += " 2>&1 ";
+		std::map<std::string,iter> ret;
+		FILE *stat = popen(cmd.c_str(),"r");
+		char buff[PIPE_READ_BUFF_MAX];
+		fread(buff,1,PIPE_READ_BUFF_MAX,stat);
+		ret["exitcode"]=_I_(new v_int(pclose(stat)));
+		ret["message"]=_I_(new v_str(buff));
+		return _I_(new v_dict(ret));
+	}
+
 }
 
