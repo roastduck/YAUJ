@@ -64,7 +64,7 @@ typedef struct _NODE
 	struct _NODE *next;
 } NODE;
 
-char *t1, *t2, *t3, *body;
+char *body;
 NODE front;
 
 inline void addSymbol(char *s)
@@ -1217,265 +1217,265 @@ yyuserAction (yyRuleNum yyn, size_t yyrhslen, yyGLRStackItem* yyvsp,
 
   case 6:
 #line 68 "parser.y" /* glr.c:783  */
-    { cat2(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("--",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1222 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 7:
 #line 72 "parser.y" /* glr.c:783  */
-    { cat3(&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (-7)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-6)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-5)].yystate.yysemantics.yysval)), cat3(&t2,&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (-4)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-3)].yystate.yysemantics.yysval)), cat3(&t1,&t2,&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval)), cat3(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-8)].yystate.yysemantics.yysval),&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("---------",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-8)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-7)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-6)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-5)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-4)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-3)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1228 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 8:
 #line 77 "parser.y" /* glr.c:783  */
-    { cn2(&t1,"foreach("), cn2(&t2,",[](const iter &"), cat3(&t3,&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (-3)].yystate.yysemantics.yysval),&t2), cn2(&t1,"){"), cat3(&t2,&t3,&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&t1), cn2(&t1,"});\n"), cat3(&((*yyvalp)),&t2,&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),&t1); }
+    { cat("+-+-+-+",&((*yyvalp)),"foreach(",(((yyGLRStackItem const *)yyvsp)[YYFILL (-3)].yystate.yysemantics.yysval),",[](const iter &",(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),"){",(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),"});\n"); }
 #line 1234 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 9:
 #line 79 "parser.y" /* glr.c:783  */
-    { cn2(&t1,"foreach("), cn2(&t2,",[](const iter &"), cat3(&t3,&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (-5)].yystate.yysemantics.yysval),&t2), cn2(&t1,",const iter &"), cat3(&t2,&t3,&(((yyGLRStackItem const *)yyvsp)[YYFILL (-3)].yystate.yysemantics.yysval),&t1), cn2(&t1,"){"), cat3(&t3,&t2,&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&t1), cn2(&t1,"});\n"), cat3(&((*yyvalp)),&t3,&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),&t1); }
+    { cat("+-+-+-+-+",&((*yyvalp)),"foreach(",(((yyGLRStackItem const *)yyvsp)[YYFILL (-5)].yystate.yysemantics.yysval),",[](const iter &",(((yyGLRStackItem const *)yyvsp)[YYFILL (-3)].yystate.yysemantics.yysval),",const iter &",(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),"){",(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),"});\n"); }
 #line 1240 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 10:
 #line 83 "parser.y" /* glr.c:783  */
-    { cat3(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("---",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1246 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 11:
 #line 88 "parser.y" /* glr.c:783  */
-    { cat2(&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (-3)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval)), cat3(&((*yyvalp)),&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("----",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-3)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1252 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 12:
 #line 93 "parser.y" /* glr.c:783  */
-    { cat3(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("---",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1258 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 13:
 #line 95 "parser.y" /* glr.c:783  */
-    { cat3(&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (-4)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-3)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval)), cat3(&((*yyvalp)),&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("-----",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-4)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-3)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1264 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 14:
 #line 99 "parser.y" /* glr.c:783  */
-    { cat3(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("---",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1270 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 15:
 #line 103 "parser.y" /* glr.c:783  */
-    { cn2(&t1,"\n{\n"), cn2(&t2,"\n}\n"), cat3(&((*yyvalp)),&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&t2); }
+    { cat("+-+",&((*yyvalp)),"\n{\n",(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),"\n}\n"); }
 #line 1276 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 16:
 #line 104 "parser.y" /* glr.c:783  */
-    { cn2(&t1,"\n"), cat2(&((*yyvalp)),&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("+-",&((*yyvalp)),"\n",(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1282 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 17:
 #line 108 "parser.y" /* glr.c:783  */
-    { cn2(&t1,";\n"), cat2(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&t1); }
+    { cat("-+",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),";\n"); }
 #line 1288 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 18:
 #line 109 "parser.y" /* glr.c:783  */
-    { cn2(&t1,";\n"), cat2(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&t1); }
+    { cat("-+",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),";\n"); }
 #line 1294 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 19:
 #line 110 "parser.y" /* glr.c:783  */
-    { cn2(&t1,";\n"), cat2(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&t1); }
+    { cat("-+",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),";\n"); }
 #line 1300 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 27:
 #line 121 "parser.y" /* glr.c:783  */
-    { cn2(&t1,"func::"), cat2(&((*yyvalp)),&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("+-",&((*yyvalp)),"func::",(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1306 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 28:
 #line 123 "parser.y" /* glr.c:783  */
-    { cn2(&t1,".add()[_I_(new v_int(-1))]"), cat2(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&t1); }
+    { cat("-+",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),".add()[_I_(new v_int(-1))]"); }
 #line 1312 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 29:
 #line 125 "parser.y" /* glr.c:783  */
-    { cat3(&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (-3)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval)), cat2(&((*yyvalp)),&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("----",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-3)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1318 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 30:
 #line 126 "parser.y" /* glr.c:783  */
-    { cat3(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("---",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1324 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 31:
 #line 127 "parser.y" /* glr.c:783  */
-    { cat3(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("---",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1330 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 32:
 #line 128 "parser.y" /* glr.c:783  */
-    { cat3(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("---",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1336 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 33:
 #line 129 "parser.y" /* glr.c:783  */
-    { cat3(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("---",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1342 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 34:
 #line 130 "parser.y" /* glr.c:783  */
-    { cat3(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("---",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1348 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 35:
 #line 131 "parser.y" /* glr.c:783  */
-    { cat3(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("---",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1354 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 36:
 #line 132 "parser.y" /* glr.c:783  */
-    { cat3(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("---",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1360 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 37:
 #line 133 "parser.y" /* glr.c:783  */
-    { cat3(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("---",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1366 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 38:
 #line 134 "parser.y" /* glr.c:783  */
-    { cat3(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("---",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1372 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 39:
 #line 135 "parser.y" /* glr.c:783  */
-    { cat3(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("---",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1378 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 40:
 #line 136 "parser.y" /* glr.c:783  */
-    { cat3(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("---",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1384 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 41:
 #line 137 "parser.y" /* glr.c:783  */
-    { cat3(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("---",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1390 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 42:
 #line 138 "parser.y" /* glr.c:783  */
-    { cat3(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("---",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1396 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 43:
 #line 139 "parser.y" /* glr.c:783  */
-    { cn2(&t1,"FEQ("), cn2(&t2,","), cat3(&t3,&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&t2), cn2(&t1,")"), cat3(&((*yyvalp)),&t3,&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),&t1); }
+    { cat("+-+-+",&((*yyvalp)),"FEQ(",(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),",",(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),")"); }
 #line 1402 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 44:
 #line 140 "parser.y" /* glr.c:783  */
-    { cn2(&t1,"NFEQ("), cn2(&t2,","), cat3(&t3,&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&t2), cn2(&t1,")"), cat3(&((*yyvalp)),&t3,&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),&t1); }
+    { cat("+-+-+",&((*yyvalp)),"NFEQ(",(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),",",(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),")"); }
 #line 1408 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 45:
 #line 141 "parser.y" /* glr.c:783  */
-    { cat2(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("--",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1414 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 46:
 #line 142 "parser.y" /* glr.c:783  */
-    { cat2(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("--",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1420 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 47:
 #line 143 "parser.y" /* glr.c:783  */
-    { cat2(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("--",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1426 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 48:
 #line 144 "parser.y" /* glr.c:783  */
-    { cat2(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("--",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1432 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 49:
 #line 146 "parser.y" /* glr.c:783  */
-    { cat2(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("--",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1438 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 50:
 #line 148 "parser.y" /* glr.c:783  */
-    { cat2(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("--",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1444 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 51:
 #line 149 "parser.y" /* glr.c:783  */
-    { cat2(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("--",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1450 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 52:
 #line 150 "parser.y" /* glr.c:783  */
-    { cat3(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("---",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1456 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 53:
 #line 151 "parser.y" /* glr.c:783  */
-    { cat3(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("---",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1462 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 54:
 #line 155 "parser.y" /* glr.c:783  */
-    { /*addSymbol($1),*/ cn2(&t1,"_v_"), cat2(&((*yyvalp)),&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)), addSymbol(((*yyvalp))); }
+    { /*addSymbol($1),*/ cat("+-",&((*yyvalp)),"_v_",(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)), addSymbol(((*yyvalp))); }
 #line 1468 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 55:
 #line 159 "parser.y" /* glr.c:783  */
-    { cn2(&t1,"_I_(new v_int("), cn2(&t2,"))"), cat3(&((*yyvalp)),&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),&t2); }
+    { cat("+-+",&((*yyvalp)),"_I_(new v_int(",(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),"))"); }
 #line 1474 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 56:
 #line 160 "parser.y" /* glr.c:783  */
-    { cn2(&t1,"_I_(new v_float("), cn2(&t2,"))"), cat3(&((*yyvalp)),&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),&t2); }
+    { cat("+-+",&((*yyvalp)),"_I_(new v_float(",(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),"))"); }
 #line 1480 "parser.tab.c" /* glr.c:783  */
     break;
 
@@ -1493,13 +1493,13 @@ yyuserAction (yyRuleNum yyn, size_t yyrhslen, yyGLRStackItem* yyvsp,
 
   case 59:
 #line 163 "parser.y" /* glr.c:783  */
-    { cn2(&t1,"_I_(new v_str("), cn2(&t2,"))"), cat3(&((*yyvalp)),&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),&t2); }
+    { cat("+-+",&((*yyvalp)),"_I_(new v_str(",(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),"))"); }
 #line 1498 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 62:
 #line 169 "parser.y" /* glr.c:783  */
-    { cn2(&t1,"_I_(new v_list())"), cat2(&((*yyvalp)),&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval)); }
+    { cat("+-",&((*yyvalp)),"_I_(new v_list())",(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval)); }
 #line 1504 "parser.tab.c" /* glr.c:783  */
     break;
 
@@ -1511,19 +1511,19 @@ yyuserAction (yyRuleNum yyn, size_t yyrhslen, yyGLRStackItem* yyvsp,
 
   case 65:
 #line 178 "parser.y" /* glr.c:783  */
-    { cn2(&t1,".add("), cn2(&t2,")"), cat3(&((*yyvalp)),&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),&t2); }
+    { cat("+-+",&((*yyvalp)),".add(",(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),")"); }
 #line 1516 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 66:
 #line 180 "parser.y" /* glr.c:783  */
-    { cn2(&t1,".add("), cn2(&t2,")"), cat3(&t3,&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),&t2), cat2(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&t3); }
+    { cat("-+-+",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),".add(",(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),")"); }
 #line 1522 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 67:
 #line 184 "parser.y" /* glr.c:783  */
-    { cn2(&t1,"_I_(new v_dict())"), cat2(&((*yyvalp)),&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval)); }
+    { cat("+-",&((*yyvalp)),"_I_(new v_dict())",(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval)); }
 #line 1528 "parser.tab.c" /* glr.c:783  */
     break;
 
@@ -1535,31 +1535,31 @@ yyuserAction (yyRuleNum yyn, size_t yyrhslen, yyGLRStackItem* yyvsp,
 
   case 70:
 #line 193 "parser.y" /* glr.c:783  */
-    { cn2(&t1,".add("), cn2(&t2,")"), cat3(&((*yyvalp)),&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),&t2); }
+    { cat("+-+",&((*yyvalp)),".add(",(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),")"); }
 #line 1540 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 71:
 #line 195 "parser.y" /* glr.c:783  */
-    { cn2(&t1,".add("), cn2(&t2,")"), cat3(&t3,&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),&t2), cat2(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&t3); }
+    { cat("-+-+",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),".add(",(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),")"); }
 #line 1546 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 72:
 #line 199 "parser.y" /* glr.c:783  */
-    { cn2(&t1,"std::pair<std::string,iter>(("), cn2(&t2,")->as_str(),"), cat3(&t3,&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&t2), cn2(&t1,")"), cat3(&((*yyvalp)),&t3,&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),&t1); }
+    { cat("+-+-+",&((*yyvalp)),"std::pair<std::string,iter>((",(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),")->as_str(),",(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),")"); }
 #line 1552 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 73:
 #line 200 "parser.y" /* glr.c:783  */
-    { cn2(&t1,"std::pair<std::string,iter>(("), cn2(&t2,")->as_str(),_I_(0))"), cat3(&((*yyvalp)),&t1,&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),&t2); }
+    { cat("+-+",&((*yyvalp)),"std::pair<std::string,iter>((",(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval),")->as_str(),_I_(0))"); }
 #line 1558 "parser.tab.c" /* glr.c:783  */
     break;
 
   case 74:
 #line 204 "parser.y" /* glr.c:783  */
-    { cat3(&t2,&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)), cat2(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-3)].yystate.yysemantics.yysval),&t2); }
+    { cat("----",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-3)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1564 "parser.tab.c" /* glr.c:783  */
     break;
 
@@ -1571,7 +1571,7 @@ yyuserAction (yyRuleNum yyn, size_t yyrhslen, yyGLRStackItem* yyvsp,
 
   case 78:
 #line 214 "parser.y" /* glr.c:783  */
-    { cat3(&((*yyvalp)),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),&(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
+    { cat("---",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),(((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval)); }
 #line 1576 "parser.tab.c" /* glr.c:783  */
     break;
 
