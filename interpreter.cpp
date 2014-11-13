@@ -1,3 +1,7 @@
+#include<typeinfo>
+#include<exception>
+#include<stdexcept>
+#include<sstream>
 #include "interpreter.h"
 
 // CLASS v_base
@@ -214,7 +218,7 @@ iter &iter::operator[](const iter &x) const
 		int id(x->as_int());
 		std::vector<iter> &V=(*this)->as_list();
 		if (id<0) id+=V.size();
-		if (id<0 || id>=V.size())
+		if (id<0 || (size_t)id>=V.size())
 			throw std::range_error("the subscript is too low or too high");
 		return (*this)->as_list()[id];
 	}
@@ -421,7 +425,7 @@ void foreach(const iter &a, void(*work)(const iter&, const iter&))
 	if (a->to() & LIST)
 	{
 		const std::vector<iter> &V=a->as_list();
-		for (int i=0;i<V.size();i++)
+		for (int i=0;(size_t)i<V.size();i++)
 			work(_I_(new v_int(i)),V[i]);
 	} else
 	if (a->to() & DICT)

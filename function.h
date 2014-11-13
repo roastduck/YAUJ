@@ -1,19 +1,8 @@
+// the comment will be used by the editor in the future, do not change the format.
+
 #ifndef INCLUDED_FUNCTION_H
 #define INCLUDED_FUNCTION_H
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <cmath>
-#include <cerrno>
-#include <cstring>
-#include <cstdlib>
-#include <string>
-#include <iostream>
-#include <exception>
-#include <stdexcept>
-#include <sandbox.h>
 #include "interpreter.h"
 #include "config.h"
 
@@ -31,14 +20,14 @@ namespace func
 
 	// execute
 	/*
-	 *	exec : execute a command in sandbox.
+	 *	$ exec : execute a command in sandbox.
 	 *	@1 comm : str. command to be executed.
 	 *	@2 tl : int. time limit in ms.
 	 *	@3 ml : int. memory limit in bytes.
 	 *	@4 in : str. stdin redirection path.
 	 *	@5 out : str. stdout redirection path.
 	 *	@6 err : str. stderr redirection path.
-	 *	return : list.
+	 *	@return : dict.
 	 *		["status"] : str. "accept" / "restricted function" / "memory limit exceed" / "output limit exceed" / "time limit exceed" / "run time error" / "abnormal termination" / "internal error" / "bad policy" / "unknown error".
 	 *		["time"] : int. cpu time in ms.
 	 *		["memory"] : int. maximum memory use in byte.
@@ -56,13 +45,13 @@ namespace func
 
 	// compile
 	/*
-	 *	compile : compile with certian options.
+	 *	$ compile : compile with certian options.
 	 *	@1 language : str. "c++" / "c++11" / "c" / "pascal".
 	 *	@2 source : list of str. path to source.
 	 *	@3 target : str. path to binary target.
 	 *	@4 O2 : bool. weather to compile with "O2"
 	 *	@5 define : list of str. macros passed to compiler.
-	 *	return : list
+	 *	@return : dict
 	 *		["exitcode"] : int. exit code
 	 *		["message"] : str. compiling message.
 	 */
@@ -74,6 +63,36 @@ namespace func
 		 const iter &O2 = _I_(new v_bool(DEFAULT_O2)),
 		 const iter &define = _I_(new v_list(std::vector<iter>(1,_I_(new v_str(DEFAULT_DEFINE)))))
 		);
+	
+	// diff
+	/*
+	 *	$ diff : compare two files. WARNING : THIS diff IS NOT BINARY SAFE.
+	 *	@1 f1 : str. path to file one.
+	 *	@2 f2 : str. path to file two.
+	 *	@3 w_mode : int.
+	 *		0 : char by char (NOTE: newline character are different between Windows and Linux)/
+	 *		1 : ignore spaces at the end of lines and '\n' or '\r' at the end of files /
+	 *		2 : word by word.
+	 *	@return : dict
+	 *		["verdict"] : bool. true if the files differ.
+	 *		["max_abs_diff"] : float. maximum absolute difference of the NUMBERS in the file.
+	 *		["max_rel_diff"] : float. maximum relative difference of the NUMBERS in the file.
+	 *			NOTE : use file two as denomiator.
+	 *			NODE : if the files are too different, ["max_abs_diff"] and ["max_rel_diff"] will be set to infinity.
+	 *			WARNING : THE DIFFERENCES ARE CALCULATED WITH 64-bit FLOATING-POINT NUMBER.
+	 *		["first_diff"] : dict. first difference
+	 *			["f1"] : str. word in file one.
+	 *			["f2"] : str. word in file two.
+	 */
+	iter diff(const iter &f1, const iter &f2, const iter &w_mode = _I_(new v_int(DEFAULT_W_MODE)));
+	
+	/*
+	 *	$ bin_diff : binary diff. this diff is binary safe.
+	 *	@1 f1 : str. path to file one.
+	 *	@2 f2 : str. path to file two.
+	 *	@return : bool. weather they differ.
+	 */
+	iter bin_diff(const iter &f1, const iter &f2);
 }
 
 #endif

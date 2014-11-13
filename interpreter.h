@@ -1,15 +1,10 @@
 #ifndef INCLUDED_INTERPRETER_H
 #define INCLUDED_INTERPRETER_H
 
-#include<cstdarg>
 #include<map>
 #include<string>
 #include<vector>
 #include<memory>
-#include<sstream>
-#include<typeinfo>
-#include<exception>
-#include<stdexcept>
 
 const int INT =	(1<<0);
 const int FLOAT =	(1<<1);
