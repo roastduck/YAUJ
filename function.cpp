@@ -99,14 +99,15 @@ namespace func
 	
 	// report
 
-	void report(const iter &score)
+	void report(const iter &score, const iter &verdict, const iter &time, const iter &memory, const iter &message)
 	{
-		std::cout << std::fixed << score->as_float() << std::endl;
-	}
-	
-	void report(const iter &score, const iter &message)
-	{
-		std::cout << std::fixed << score->as_float() << ' ' << message->as_str() << std::endl;
+		try
+		{
+			std::cout << score->as_float() << verdict->as_str() << time->as_int() << memory->as_int() << message->as_str() << std::endl;
+		} catch (const std::runtime_error &e)
+		{
+			throw std::runtime_error("log : "+std::string(e.what()));
+		}
 	}
 
 	void log(const iter &content)
@@ -118,7 +119,6 @@ namespace func
 		{
 			throw std::runtime_error("log : "+std::string(e.what()));
 		}
-
 	}
 	
 	// execute
@@ -362,6 +362,6 @@ namespace func
 		if (F2[0]!='/') F2 = RUN_PATH + F2;
 		return _I_(new v_bool(system(("diff "+F1+" "+F2+" >/dev/null 2>&1").c_str())));
 	}
-	
+
 }
 

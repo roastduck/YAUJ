@@ -1,5 +1,7 @@
 // the comment will be used by the editor in the future, do not change the format.
 
+// the path memtioned below can be pull path or partial path.
+
 #ifndef INCLUDED_FUNCTION_H
 #define INCLUDED_FUNCTION_H
 
@@ -14,8 +16,20 @@ namespace func
 	iter round(const iter &x);
 
 	// report
-	void report(const iter &score);
-	void report(const iter &score, const iter &message);
+	/*
+	 * $ report :
+	 * @1 score : float.
+	 * @2 verdict : str.
+	 * @3 time : int. in ms.
+	 * @4 memory : int. int bytes.
+	 * @5 message : str. extra message.
+	 */
+	void report(const iter &score, const iter &verdict, const iter &time, const iter &memory, const iter &message = _I_(new v_str("")));
+	
+	/*
+	 * $ log : output a log
+	 * @1 content : str.
+	 */
 	void log(const iter &content);
 
 	// execute
@@ -93,6 +107,7 @@ namespace func
 	 *	@return : bool. weather they differ.
 	 */
 	iter bin_diff(const iter &f1, const iter &f2);
+	
 }
 
 #endif
