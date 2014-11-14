@@ -1,7 +1,7 @@
 %{
 
 #include <stdio.h>
-#include "mystr.h"
+#include "src/mystr.h"
 #include "parser.tab.h"
 
 %}

@@ -1,13 +1,13 @@
-main : main.cpp interpreter.cpp function.cpp interpreter.h function.h config.h
-	g++ main.cpp interpreter.cpp function.cpp -o main -std=c++11 -lsandbox -g -Wall
+main : main.cpp src/interpreter.cpp src/function.cpp src/interpreter.h src/function.h src/config.h
+	g++ main.cpp src/interpreter.cpp src/function.cpp -o main -std=c++11 -lsandbox -g -Wall
 
 main.cpp : parser src.txt
 	./parser < src.txt > main.cpp
 
-parser : lex.yy.c parser.tab.c mystr.c parser.tab.h mystr.h
-	gcc lex.yy.c parser.tab.c mystr.c -o parser -g
-lex.yy.c : parser.l
-	flex parser.l
-parser.tab.c parser.tab.h : parser.y
-	bison -d parser.y
+parser : lex.yy.c parser.tab.c src/mystr.c parser.tab.h src/mystr.h
+	gcc lex.yy.c parser.tab.c src/mystr.c -o parser -g
+lex.yy.c : src/parser.l
+	flex src/parser.l
+parser.tab.c parser.tab.h : src/parser.y
+	bison -d src/parser.y
 

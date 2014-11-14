@@ -1,7 +1,7 @@
 %{
 
 #include <stdio.h>
-#include "mystr.h"
+#include "src/mystr.h"
 
 extern int yylineno;
 
@@ -227,8 +227,8 @@ int main()
 	int stat = yyparse();
 	//addSymbol("_v_submission");
 	if (stat) return stat;
-	puts("#include \"interpreter.h\"");
-	puts("#include \"function.h\"");
+	puts("#include \"src/interpreter.h\"");
+	puts("#include \"src/function.h\"");
 	puts("#define LINE_CAT(no) catch (const std::runtime_error &e) { throw std::runtime_error(std::string(\"line \")+no+\" : \"+e.what()); }");
 	if (front.symbol)
 	{
