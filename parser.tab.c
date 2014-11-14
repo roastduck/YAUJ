@@ -3270,7 +3270,7 @@ int yyerror(char *s)
 int main()
 {
 	int stat = yyparse();
-	addSymbol("_v_submission");
+	//addSymbol("_v_submission");
 	if (stat) return stat;
 	puts("#include \"interpreter.h\"");
 	puts("#include \"function.h\"");
@@ -3287,11 +3287,12 @@ int main()
 		puts(";");
 		//puts("}");
 	}
-	puts("int main(int argc, char **argv) {");
-	puts("if (argc!=3) throw std::runtime_error(\"wrong parameter number\");");
-	puts("_v_submission=_I_(new v_dict());");
-	puts("_v_submission->as_dict()[\"language\"]=_I_(new v_str(argv[1]));");
-	puts("_v_submission->as_dict()[\"source\"]=_I_(new v_str(argv[2]));");
+	//puts("int main(int argc, char **argv) {");
+	//puts("if (argc!=3) throw std::runtime_error(\"wrong parameter number\");");
+	//puts("_v_submission=_I_(new v_dict());");
+	//puts("_v_submission->as_dict()[\"language\"]=_I_(new v_str(argv[1]));");
+	//puts("_v_submission->as_dict()[\"source\"]=_I_(new v_str(argv[2]));");
+	puts("int main() {");
 	puts(body);
 	puts("return 0;");
 	puts("}");
