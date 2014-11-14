@@ -1283,7 +1283,7 @@ yyuserAction (yyRuleNum yyn, size_t yyrhslen, yyGLRStackItem* yyvsp,
 
   case 17:
 #line 108 "parser.y" /* glr.c:783  */
-    { cat("-+",&((*yyvalp)),(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),";\n"); }
+    { char s[32]; sprintf(s,";}LINE_CAT(\"%d\");\n",yylineno); cat("+-+",&((*yyvalp)),"try{",(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),s); }
 #line 1288 "parser.tab.c" /* glr.c:783  */
     break;
 
@@ -3274,6 +3274,7 @@ int main()
 	if (stat) return stat;
 	puts("#include \"interpreter.h\"");
 	puts("#include \"function.h\"");
+	puts("#define LINE_CAT(no) catch (const std::runtime_error &e) { throw std::runtime_error(std::string(\"line \")+no+\" : \"+e.what()); }");
 	if (front.symbol)
 	{
 		//puts("namespace var {");
@@ -3294,6 +3295,7 @@ int main()
 	puts(body);
 	puts("return 0;");
 	puts("}");
+	puts("#undef LINE_CAT");
 	return 0;
 }
 

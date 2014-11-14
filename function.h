@@ -15,6 +15,22 @@ namespace func
 	iter floor(const iter &x);
 	iter round(const iter &x);
 
+	// algorithm
+	iter min(const iter &x, const iter &y);
+	iter max(const iter &x, const iter &y);
+	void swap(iter &x, iter &y);
+	void sort(const iter &x);
+
+	// misc
+	iter len(const iter &x);
+	iter read(const iter &file);
+	/*
+	 *	$ split : split str into list
+	 *	@1 : str : str.
+	 *	@2 : pat : patterns. split by any character in it.
+	 */
+	iter split(const iter &str, const iter &pat = _I_(new v_str(" \t\r\n")));
+	
 	// report
 	/*
 	 * $ report :

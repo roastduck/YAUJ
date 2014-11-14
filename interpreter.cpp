@@ -219,7 +219,7 @@ iter &iter::operator[](const iter &x) const
 		std::vector<iter> &V=(*this)->as_list();
 		if (id<0) id+=V.size();
 		if (id<0 || (size_t)id>=V.size())
-			throw std::range_error("the subscript is too low or too high");
+			throw std::runtime_error("the subscript is too low or too high");
 		return (*this)->as_list()[id];
 	}
 	if (((*this)->to() & DICT) && (x->to() & STR))

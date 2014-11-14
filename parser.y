@@ -105,7 +105,7 @@ block_or_stmt :
 ;
 
 stmt :
-	expr ';'				{ cat("-+",&$$,$1,";\n"); }
+	expr ';'				{ char s[32]; sprintf(s,";}LINE_CAT(\"%d\");\n",yylineno); cat("+-+",&$$,"try{",$1,s); }
 |	BREAK ';'				{ cat("-+",&$$,$1,";\n"); }
 |	CONTINUE ';'			{ cat("-+",&$$,$1,";\n"); }
 |	if	
@@ -229,6 +229,7 @@ int main()
 	if (stat) return stat;
 	puts("#include \"interpreter.h\"");
 	puts("#include \"function.h\"");
+	puts("#define LINE_CAT(no) catch (const std::runtime_error &e) { throw std::runtime_error(std::string(\"line \")+no+\" : \"+e.what()); }");
 	if (front.symbol)
 	{
 		//puts("namespace var {");
@@ -249,6 +250,7 @@ int main()
 	puts(body);
 	puts("return 0;");
 	puts("}");
+	puts("#undef LINE_CAT");
 	return 0;
 }
 

@@ -15,6 +15,8 @@
 #include <sandbox.h>
 #include "function.h"
 
+#define FUNC_END(name) catch (const std::runtime_error &e) { throw std::runtime_error(#name" : "+std::string(e.what())); }
+
 static int ts2ms(timespec &ts)
 {
 	return ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
@@ -84,17 +86,108 @@ namespace func
 
 	iter ceil(const iter &x)
 	{
-		return v_base_ptr(new v_int(::ceil(x->as_float())));
+		try { return v_base_ptr(new v_int(::ceil(x->as_float()))); }
+		FUNC_END(ceil);
 	}
 	
 	iter floor(const iter &x)
 	{
-		return v_base_ptr(new v_int(::floor(x->as_float())));
+		try { return v_base_ptr(new v_int(::floor(x->as_float()))); }
+		FUNC_END(floor);
 	}
 	
 	iter round(const iter &x)
 	{
-		return v_base_ptr(new v_int(::round(x->as_float())));
+		try { return v_base_ptr(new v_int(::round(x->as_float()))); }
+		FUNC_END(round);
+	}
+
+	// algorithm
+	
+	iter min(const iter &x, const iter &y)
+	{
+		try { return std::min(x,y); }
+		FUNC_END(min);
+	}
+	
+	iter max(const iter &x, const iter &y)
+	{
+		try { return std::max(x,y); }
+		FUNC_END(max);
+	}
+
+	void swap(iter &x, iter &y)
+	{
+		std::swap(x,y);
+	}
+	
+	void sort(const iter &x)
+	{
+		try
+		{
+			if (x->to() & LIST)
+				sort(x->as_list().begin(),x->as_list().end());
+			else
+				throw std::runtime_error("cannot sort this type");
+		}
+		FUNC_END(sort);
+	}
+	
+	// misc
+	
+	iter len(const iter &x)
+	{
+		try
+		{
+			if (x->to() & LIST)
+				return _I_(new v_int(x->as_list().size()));
+			else if (x->to() & DICT)
+				return _I_(new v_int(x->as_dict().size()));
+			else
+				throw std::runtime_error("this type has no length");
+		}
+		FUNC_END(len);
+	}
+
+	iter read(const iter &file)
+	{
+		try
+		{
+			std::string F = file->as_str();
+			if (F[0]!='/') F = RUN_PATH + F;
+			FILE *p = fopen(F.c_str(),"r");
+			static char buff[FUNC_READ_BUFF_MAX+1];
+			fread(buff,1,FUNC_READ_BUFF_MAX,p);
+			fclose(p);
+			if (feof(p)) throw std::runtime_error("FUNC_READ_BUFF_MAX exceeded");
+			return _I_(new v_str(buff));
+		}
+		FUNC_END(read);
+	}
+	
+	iter split(const iter &str, const iter &pat)
+	{
+		try
+		{
+			std::string s = str->as_str(), p = pat->as_str();
+			std::vector<iter> ret;
+			size_t pos(0);
+			while (true)
+			{
+				size_t next;
+				next = s.find_first_of(p,pos);
+				if (next==std::string::npos)
+				{
+					if (pos<s.length()) ret.push_back(_I_(new v_str(s.substr(pos))));
+					break;
+				}
+				if (next>pos)
+					ret.push_back(_I_(new v_str(s.substr(pos,next-pos))));
+				pos = next+1;
+			}
+			return _I_(new v_list(ret));
+		}
+		FUNC_END(split);
 	}
 	
 	// report
@@ -104,21 +197,14 @@ namespace func
 		try
 		{
 			std::cout << score->as_float() << verdict->as_str() << time->as_int() << memory->as_int() << message->as_str() << std::endl;
-		} catch (const std::runtime_error &e)
-		{
-			throw std::runtime_error("log : "+std::string(e.what()));
 		}
+		FUNC_END(report);
 	}
 
 	void log(const iter &content)
 	{
-		try
-		{
-			std::clog << content->as_str() << std::endl;
-		} catch (const std::runtime_error &e)
-		{
-			throw std::runtime_error("log : "+std::string(e.what()));
-		}
+		try { std::clog << content->as_str() << std::endl; }
+		FUNC_END(log);
 	}
 	
 	// execute
@@ -193,10 +279,8 @@ namespace func
 			close(out_no);
 			close(err_no);
 			return _I_(new v_dict(ret));
-		} catch (const std::runtime_error &e)
-		{
-			throw std::runtime_error("exec : "+std::string(e.what()));
 		}
+		FUNC_END(exec);
 	}
 	
 	// compile
@@ -262,10 +346,8 @@ namespace func
 			ret["exitcode"]=_I_(new v_int(pclose(stat)));
 			ret["message"]=_I_(new v_str(buff));
 			return _I_(new v_dict(ret));
-		} catch (const std::runtime_error &e)
-		{
-			throw std::runtime_error("compile : "+std::string(e.what()));
 		}
+		FUNC_END(compile);
 	}
 	
 	// diff
@@ -347,21 +429,25 @@ namespace func
 			ret->as_dict()["first_diff"]->as_dict()["f1"] = _I_(new v_str(r_first_diff.first));
 			ret->as_dict()["first_diff"]->as_dict()["f2"] = _I_(new v_str(r_first_diff.second));
 			return ret;
-		} catch (const std::runtime_error &e)
-		{
-			throw std::runtime_error("diff : "+std::string(e.what()));
 		}
+		FUNC_END(diff);
 	}
 	
 	iter bin_diff(const iter &f1, const iter &f2)
 	{
-		std::string F1, F2;
-		F1 = f1->as_str();
-		F2 = f2->as_str();
-		if (F1[0]!='/') F1 = RUN_PATH + F1;
-		if (F2[0]!='/') F2 = RUN_PATH + F2;
-		return _I_(new v_bool(system(("diff "+F1+" "+F2+" >/dev/null 2>&1").c_str())));
+		try
+		{
+			std::string F1, F2;
+			F1 = f1->as_str();
+			F2 = f2->as_str();
+			if (F1[0]!='/') F1 = RUN_PATH + F1;
+			if (F2[0]!='/') F2 = RUN_PATH + F2;
+			return _I_(new v_bool(system(("diff "+F1+" "+F2+" >/dev/null 2>&1").c_str())));
+		}
+		FUNC_END(bin_diff);
 	}
 
 }
+
+#undef FUNC_END
 
