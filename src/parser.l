@@ -55,7 +55,7 @@ Z       [zZ]
 "-"							{ cn3(&yylval,yytext,yyleng); return('-'); }
 "*"							{ cn3(&yylval,yytext,yyleng); return('*'); }
 "/"							{ cn3(&yylval,yytext,yyleng); return('/'); }
-"%" | {M}{O}{D}				{ cn2(&yylval,"%"); return('%'); }
+"%"|{M}{O}{D}					{ cn2(&yylval,"%"); return('%'); }
 "="							{ cn3(&yylval,yytext,yyleng); return('='); }
 "<"							{ cn3(&yylval,yytext,yyleng); return('<'); }
 ">"							{ cn3(&yylval,yytext,yyleng); return('>'); }
@@ -65,9 +65,9 @@ Z       [zZ]
 "==="						{ return(FEQ); }
 "!="							{ cn3(&yylval,yytext,yyleng); return(NEQ); }
 "!==="						{ return(NFEQ); }
-"!" | {N}{O}{T}				{ cn2(&yylval,"!"); return('!'); }
-"&&" | {A}{N}{D}				{ cn2(&yylval,"&&"); return(AND); }
-"||" | {O}{R}					{ cn2(&yylval,"||"); return(OR); }
+"!"|{N}{O}{T}					{ cn2(&yylval,"!"); return('!'); }
+"&&"|{A}{N}{D}					{ cn2(&yylval,"&&"); return(AND); }
+"||"|{O}{R}					{ cn2(&yylval,"||"); return(OR); }
 "++"							{ cn3(&yylval,yytext,yyleng); return(PLUSPLUS); }
 "--"							{ cn3(&yylval,yytext,yyleng); return(MINUSMINUS); }
 ","							{ cn3(&yylval,yytext,yyleng); return(','); }
@@ -79,14 +79,13 @@ Z       [zZ]
 "]"							{ cn3(&yylval,yytext,yyleng); return(']'); }
 "{"							{ cn3(&yylval,yytext,yyleng); return('{'); }
 "}"							{ cn3(&yylval,yytext,yyleng); return('}'); }
-"."							{ cn3(&yylval,yytext,yyleng); return('.'); }
 \"[^\"]*?\"					{ cn3(&yylval,yytext,yyleng); return(STR); }
 [a-zA-Z_]([a-zA-Z0-9_])*			{ cn3(&yylval,yytext,yyleng); return(IDENTIFIER); }
 [0-9]+						{ cn3(&yylval,yytext,yyleng); return(INTEGER); }
 [0-9]*\.[0-9]+					{ cn3(&yylval,yytext,yyleng); return(FLOAT); }
 "//".*?\n						;
 [\t\r\f\n ]+					;
-.							fprintf(stderr, "unexpected character '%c' at line %d\n", yytext[0], yylineno);
+.							fprintf(stderr, "lexer : unexpected character '%c' at line %d\n", yytext[0], yylineno);
 
 %%
 

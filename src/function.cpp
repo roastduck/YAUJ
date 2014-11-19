@@ -196,7 +196,7 @@ namespace func
 	{
 		try
 		{
-			std::cout << score->as_float() << verdict->as_str() << time->as_int() << memory->as_int() << message->as_str() << std::endl;
+			std::cout << score->as_float() << ' ' << verdict->as_str() << ' ' << time->as_int() << ' ' << memory->as_int() << ' ' << message->as_str() << std::endl;
 		}
 		FUNC_END(report);
 	}
@@ -293,11 +293,14 @@ namespace func
 			bool _O2;
 			std::vector<std::string> _SRC, _DEF;
 			_LANG = language->as_str();
-			for (const iter &x: source->as_list())
-			{
-				_SRC.push_back(x->as_str());
-				if (_SRC.back()[0]!='/') _SRC.back() = RUN_PATH + _SRC.back();
-			}
+			if (source->to() & LIST)
+				for (const iter &x: source->as_list())
+				{
+					_SRC.push_back(x->as_str());
+					if (_SRC.back()[0]!='/') _SRC.back() = RUN_PATH + _SRC.back();
+				}
+			else
+				_SRC=std::vector<std::string>(1,RUN_PATH+source->as_str());
 			_TAR = target->as_str();
 			if (_TAR[0]!='/') _TAR = RUN_PATH + _TAR;
 			_O2 = O2->as_bool();
@@ -335,7 +338,7 @@ namespace func
 							if (_O2) cmd += " -O2 ";
 							for (const std::string &x: _DEF) cmd += " -d" + x;
 						} else
-							throw std::runtime_error("unknown language");
+							throw std::runtime_error("unknown language : "+_LANG);
 			cmd += " 2>&1 ";
 			std::map<std::string,iter> ret;
 			FILE *stat = popen(cmd.c_str(),"r");

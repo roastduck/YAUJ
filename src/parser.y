@@ -34,7 +34,7 @@ inline void addSymbol(char *s)
 
 %error-verbose
 %glr-parser
-%expect 22
+%expect 1
 %expect-rr 1
 
 %token IDENTIFIER INTEGER FLOAT EQ FEQ NEQ NFEQ AND OR FOR WHILE DO IF VMINUS VPOSI
@@ -50,7 +50,7 @@ inline void addSymbol(char *s)
 %left '*' '/' '%'
 %right '!' VMINUS VPOSI VFPLUSPLUS VFMINUSMINUS
 %right PLUSPLUS MINUSMINUS
-%left '.' SUBACCESS
+%left '[' ']'
 
 %%
 
@@ -105,7 +105,7 @@ block_or_stmt :
 ;
 
 stmt :
-	expr ';'				{ char s[32]; sprintf(s,";}LINE_CAT(\"%d\");\n",yylineno); cat("+-+",&$$,"try{",$1,s); }
+	expr ';'				{ char s[32]; sprintf(s,";}LINE_CAT(\"%d\")\n",yylineno); cat("+-+",&$$,"try{",$1,s); }
 |	BREAK ';'				{ cat("-+",&$$,$1,";\n"); }
 |	CONTINUE ';'			{ cat("-+",&$$,$1,";\n"); }
 |	if	
@@ -119,9 +119,9 @@ expr :
 	const
 |	var
 |	func_call				{ cat("+-",&$$,"func::",$1); }
-|	expr '[' ']' %prec SUBACCESS
+|	expr '[' ']'
 						{ cat("-+",&$$,$1,".add()[_I_(new v_int(-1))]"); }
-|	expr '[' expr ']' %prec SUBACCESS
+|	expr '[' expr ']'
 						{ cat("----",&$$,$1,$2,$3,$4); }
 |	'(' expr ')'			{ cat("---",&$$,$1,$2,$3); }
 |	expr '+' expr			{ cat("---",&$$,$1,$2,$3); }
@@ -218,15 +218,15 @@ nonemp_params :
 
 int yyerror(char *s)
 {
-	fprintf(stderr, "line %d: %s\n", yylineno, s);
+	fprintf(stderr, "parser : line %d: %s\n", yylineno, s);
 	return 1;
 }
 
 int main()
 {
 	int stat = yyparse();
-	//addSymbol("_v_submission");
 	if (stat) return stat;
+	addSymbol("_v_submission");
 	puts("#include \"src/interpreter.h\"");
 	puts("#include \"src/function.h\"");
 	puts("#define LINE_CAT(no) catch (const std::runtime_error &e) { throw std::runtime_error(std::string(\"line \")+no+\" : \"+e.what()); }");
@@ -242,12 +242,14 @@ int main()
 		puts(";");
 		//puts("}");
 	}
-	//puts("int main(int argc, char **argv) {");
-	//puts("if (argc!=3) throw std::runtime_error(\"wrong parameter number\");");
-	//puts("_v_submission=_I_(new v_dict());");
-	//puts("_v_submission->as_dict()[\"language\"]=_I_(new v_str(argv[1]));");
-	//puts("_v_submission->as_dict()[\"source\"]=_I_(new v_str(argv[2]));");
-	puts("int main() {");
+	puts("int main(int argc, char **argv) {");
+	puts("if (argc%2==0) throw std::runtime_error(\"wrong parameter number\");");
+	puts("_v_submission=_I_(new v_list());");
+	puts("for (int i=1;i<argc;i+=2) {");
+		puts("_v_submission->as_list().push_back(_I_(new v_dict()));");
+		puts("_v_submission->as_list().back()->as_dict()[\"language\"]=_I_(new v_str(argv[i]));");
+		puts("_v_submission->as_list().back()->as_dict()[\"source\"]=_I_(new v_str(argv[i+1]));");
+	puts("}");
 	puts(body);
 	puts("return 0;");
 	puts("}");

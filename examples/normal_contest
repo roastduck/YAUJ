@@ -1,0 +1,24 @@
+// you should determin variables source, language, case_num, input, output
+case_num = 2;
+input = ["in1", "in2"];
+output = ["out1", "out2"];
+
+ret = compile(submission[0]["language"],submission[0]["source"],"bin");
+if (ret["exitcode"])
+{
+	log("compile error");
+	log(ret["message"]);
+} else
+{
+	for (i=0; i<case_num; i++)
+	{
+		exec_ret = exec("bin",1000,268435456,input[i],"tmp.out");
+		if (exec_ret["status"]!="accept" || exec_ret["exitcode"])
+			report(0,exec_ret["status"],exec_ret["time"],exec_ret["memory"]);
+		diff_ret = diff("tmp.out",output[i]);
+		if (diff_ret["verdict"])
+			report(0,"wrong answer",exec_ret["time"],exec_ret["memory"],"diff : "+diff_ret["first_diff"]["f1"]+" : "+diff_ret["first_diff"]["f2"]);
+		else
+			report(100/case_num,"accept",exec_ret["time"],exec_ret["memory"]);
+	}
+}

@@ -77,9 +77,9 @@ namespace func
 	/*
 	 *	$ compile : compile with certian options.
 	 *	@1 language : str. "c++" / "c++11" / "c" / "pascal".
-	 *	@2 source : list of str. path to source.
+	 *	@2 source : str or list of str. path to source.
 	 *	@3 target : str. path to binary target.
-	 *	@4 O2 : bool. weather to compile with "O2"
+	 *	@4 O2 : bool. whether to compile with "O2"
 	 *	@5 define : list of str. macros passed to compiler.
 	 *	@return : dict
 	 *		["exitcode"] : int. exit code
@@ -120,7 +120,7 @@ namespace func
 	 *	$ bin_diff : binary diff. this diff is binary safe.
 	 *	@1 f1 : str. path to file one.
 	 *	@2 f2 : str. path to file two.
-	 *	@return : bool. weather they differ.
+	 *	@return : bool. whether they differ.
 	 */
 	iter bin_diff(const iter &f1, const iter &f2);
 	
