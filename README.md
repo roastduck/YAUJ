@@ -6,7 +6,7 @@ YAUJ
 简要概述
 ----
 
-实现了一个类C的弱类型语言，内建了若干评测相关的函数，具体用法参见语法文件和例子。编译需安装libsandbox（https://github.com/openjudge/sandbox）。
+实现了一个类C的语言，内建了若干评测相关的函数，具体用法参见语法文件和例子。编译需安装libsandbox（https://github.com/openjudge/sandbox）。
 计划实现一个，有语法高亮/补全/提示功能（用codemirror实现）的编辑器，并提供传统题目的模板生成。计划写成js类的形式方便移植。
 
 文件结构  
