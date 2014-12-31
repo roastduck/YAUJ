@@ -5,6 +5,7 @@
 #include<string>
 #include<vector>
 #include<memory>
+#include<jsoncpp/json/json.h>
 
 const int INT =	(1<<0);
 const int FLOAT =	(1<<1);
@@ -36,6 +37,7 @@ class v_base
 		virtual int as_int() const;
 		virtual double as_float() const;
 		virtual bool as_bool() const;
+		virtual Json::Value as_json() const;
 		virtual std::string as_str() const;
 		virtual std::vector<iter> &as_list();
 		virtual std::map<std::string,iter> &as_dict();
@@ -51,6 +53,7 @@ class v_int : public v_base
 		int as_int() const;
 		double as_float() const;
 		bool as_bool() const;
+		Json::Value as_json() const;
 		std::string as_str() const;
 		v_base_ptr clone() const;
 };
@@ -63,6 +66,7 @@ class v_float : public v_base
 		int to() const;
 		double as_float() const;
 		bool as_bool() const;
+		Json::Value as_json() const;
 		std::string as_str() const;
 		v_base_ptr clone() const;
 };
@@ -76,6 +80,7 @@ class v_bool : public v_base
 		int as_int() const;
 		double as_float() const;
 		bool as_bool() const;
+		Json::Value as_json() const;
 		v_base_ptr clone() const;
 };
 
@@ -86,6 +91,7 @@ class v_str : public v_base
 		v_str(std::string x);
 		int to() const;
 		bool as_bool() const;
+		Json::Value as_json() const;
 		std::string as_str() const;
 		v_base_ptr clone() const;
 };
@@ -98,6 +104,7 @@ class v_list : public v_base
 		v_list(const std::vector<iter> &x);
 		int to() const;
 		bool as_bool() const;
+		Json::Value as_json() const;
 		std::vector<iter> &as_list();
 		v_base_ptr clone() const;
 };
@@ -110,6 +117,7 @@ class v_dict : public v_base
 		v_dict(const std::map<std::string,iter> &x);
 		int to() const;
 		bool as_bool() const;
+		Json::Value as_json() const;
 		std::map<std::string,iter> &as_dict();
 		v_base_ptr clone() const;
 };

@@ -22,6 +22,10 @@ bool v_base::as_bool() const
 {
 	throw std::runtime_error("error converting to bool");
 }
+Json::Value v_base::as_json() const
+{
+	return Json::nullValue;
+}
 std::string v_base::as_str() const
 {
 	throw std::runtime_error("error converting to str");
@@ -57,6 +61,10 @@ bool v_int::as_bool() const
 {
 	return data;
 }
+Json::Value v_int::as_json() const
+{
+	return data;
+}
 std::string v_int::as_str() const
 {
 	std::ostringstream ss;
@@ -79,6 +87,10 @@ double v_float::as_float() const
 	return data;
 }
 bool v_float::as_bool() const
+{
+	return data;
+}
+Json::Value v_float::as_json() const
 {
 	return data;
 }
@@ -111,6 +123,10 @@ bool v_bool::as_bool() const
 {
 	return data;
 }
+Json::Value v_bool::as_json() const
+{
+	return data;
+}
 v_base_ptr v_bool::clone() const
 {
 	return v_base_ptr(new v_bool(data));
@@ -125,6 +141,10 @@ int v_str::to() const
 bool v_str::as_bool() const
 {
 	return ! data.empty();
+}
+Json::Value v_str::as_json() const
+{
+	return data;
 }
 std::string v_str::as_str() const
 {
@@ -146,6 +166,13 @@ bool v_list::as_bool() const
 {
 	return ! data.empty();
 }
+Json::Value v_list::as_json() const
+{
+	Json::Value ret;
+	for (size_t i=0;i<data.size();i++)
+		ret[Json::ArrayIndex(i)]=data[i]->as_json();
+	return ret;
+}
 std::vector<iter> &v_list::as_list()
 {
 	return data;
@@ -165,6 +192,13 @@ int v_dict::to() const
 bool v_dict::as_bool() const
 {
 	return ! data.empty();
+}
+Json::Value v_dict::as_json() const
+{
+	Json::Value ret;
+	for (const auto &x : data)
+		ret[x.first]=x.second->as_json();
+	return ret;
 }
 std::map<std::string,iter> &v_dict::as_dict()
 {

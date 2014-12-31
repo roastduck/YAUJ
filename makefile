@@ -1,5 +1,5 @@
 main : main.cpp src/interpreter.cpp src/function.cpp src/interpreter.h src/function.h src/config.h
-	g++ main.cpp src/interpreter.cpp src/function.cpp -o main -std=c++11 -lsandbox -g -Wall
+	g++ main.cpp src/interpreter.cpp src/function.cpp -o main -std=c++11 -lsandbox -ljsoncpp -g -Wall
 
 main.cpp : parser src.txt
 	rm -f main.cpp
