@@ -1,0 +1,23 @@
+[
+	{
+		"name": "run",
+		"params":
+		{
+			"pid": 0,
+			"submission": []
+		},
+		"returns": []
+	},
+	{
+		"name": "loadConf",
+		"params":
+		{
+			"pid": 0
+		},
+		"returns": []
+	},
+	{
+		"name": "judgerStatus",
+		"returns": {}
+	}
+]

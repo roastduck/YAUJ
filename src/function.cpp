@@ -157,7 +157,7 @@ namespace func
 			if (F[0]!='/') F = RUN_PATH + F;
 			FILE *p = fopen(F.c_str(),"r");
 			static char buff[FUNC_READ_BUFF_MAX+1];
-			fread(buff,1,FUNC_READ_BUFF_MAX,p);
+			buff[fread(buff,1,FUNC_READ_BUFF_MAX,p)]=0;
 			fclose(p);
 			if (feof(p)) throw std::runtime_error("FUNC_READ_BUFF_MAX exceeded");
 			return _I_(new v_str(buff));
@@ -343,7 +343,7 @@ namespace func
 			std::map<std::string,iter> ret;
 			FILE *stat = popen(cmd.c_str(),"r");
 			static char buff[PIPE_READ_BUFF_MAX+1]; // null-termination
-			fread(buff,1,PIPE_READ_BUFF_MAX,stat);
+			buff[fread(buff,1,PIPE_READ_BUFF_MAX,stat)]=0;
 			if (!feof(stat))
 				std::cerr << "[WARNING] compile : PIPE_READ_BUFF_MAX exceeded" << std::endl;
 			ret["exitcode"]=_I_(new v_int(pclose(stat)));
@@ -378,8 +378,8 @@ namespace func
 				throw std::runtime_error("file not exist");
 			}
 			static char buff1[DIFF_FILE_BUFF_MAX+1], buff2[DIFF_FILE_BUFF_MAX+1]; // null-termination
-			fread(buff1,1,DIFF_FILE_BUFF_MAX,f1_ptr);
-			fread(buff2,1,DIFF_FILE_BUFF_MAX,f2_ptr);
+			buff1[fread(buff1,1,DIFF_FILE_BUFF_MAX,f1_ptr)]=0;
+			buff2[fread(buff2,1,DIFF_FILE_BUFF_MAX,f2_ptr)]=0;
 			fclose(f1_ptr);
 			fclose(f2_ptr);
 			if ((ferror(f1_ptr) || !feof(f1_ptr)) && (ferror(f2_ptr) || !feof(f2_ptr)))
