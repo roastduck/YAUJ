@@ -22,6 +22,8 @@ class v_list;
 class v_dict;
 class iter;
 
+struct user_error {};
+
 typedef std::shared_ptr<v_base> v_base_ptr;
 
 #define _I_(x) iter(v_base_ptr(x))

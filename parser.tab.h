@@ -74,8 +74,11 @@ extern int yydebug;
     AS = 284,
     BREAK = 285,
     CONTINUE = 286,
-    LEQ = 287,
-    GEQ = 288
+    TRY = 287,
+    CATCH = 288,
+    THROW = 289,
+    LEQ = 290,
+    GEQ = 291
   };
 #endif
 

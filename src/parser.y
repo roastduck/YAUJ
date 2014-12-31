@@ -39,7 +39,7 @@ inline void addSymbol(char *s)
 
 %token IDENTIFIER INTEGER FLOAT EQ FEQ NEQ NFEQ AND OR FOR WHILE DO IF VMINUS VPOSI
 %token PLUSPLUS MINUSMINUS VFPLUSPLUS VFMINUSMINUS ELSE TRUE FALSE STR SUBACCESS
-%token FOREACH ARROW AS BREAK CONTINUE
+%token FOREACH ARROW AS BREAK CONTINUE TRY CATCH THROW
 
 %right '='
 %left OR
@@ -95,14 +95,22 @@ if :
 						{ cat("-----",&$$,$1,$2,$3,$4,$5); }
 ;
 
+try :
+    TRY block CATCH block	{ cat("----",&$$,$1,$2,$3,$4); }
+;
+
 condition :
 	'(' expr ')'			{ cat("---",&$$,$1,$2,$3); }
 ;
 
 block_or_stmt :
-	'{' contents '}'		{ cat("+-+",&$$,"\n{\n",$2,"\n}\n"); }
+	block
 |	stmt					{ cat("+-",&$$,"\n",$1); }
 ;
+
+block :
+	'{' contents '}'		{ cat("+-+",&$$,"\n{\n",$2,"\n}\n"); }
+;	
 
 stmt :
 	expr ';'				{ char s[32]; sprintf(s,";}LINE_CAT(\"%d\")\n",yylineno); cat("+-+",&$$,"try{",$1,s); }
@@ -113,6 +121,8 @@ stmt :
 |	do_while
 |	for
 |	foreach
+|	try
+|	THROW ';'				{ cat("-+",&$$,$1,";\n"); }
 ;
 
 expr :

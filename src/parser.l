@@ -50,6 +50,9 @@ Z       [zZ]
 {A}{S}						{ cn2(&yylval," as "); return(AS); }
 {B}{R}{E}{A}{K}				{ cn2(&yylval," break "); return(BREAK); }
 {C}{O}{N}{T}{I}{N}{U}{E}			{ cn2(&yylval," continue "); return(CONTINUE); }
+{T}{R}{Y}						{ cn2(&yylval," try "); return(TRY); }
+{C}{A}{T}{C}{H}				{ cn2(&yylval," catch(user_error) "); return(CATCH); }
+{T}{H}{R}{O}{W}				{ cn2(&yylval," throw user_error() "); return(THROW); }
 "->"							{ cn3(&yylval,yytext,yyleng); return(ARROW); }
 "+"							{ cn3(&yylval,yytext,yyleng); return('+'); }
 "-"							{ cn3(&yylval,yytext,yyleng); return('-'); }
