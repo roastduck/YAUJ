@@ -207,7 +207,7 @@ dict_nonemp_ele :
 
 dict_expr :
 	expr ':' expr			{ cat("+-+-+",&$$,"std::pair<std::string,iter>((",$1,")->as_str(),",$3,")"); }
-|	expr					{ cat("+-+",&$$,"std::pair<std::string,iter>((",$1,")->as_str(),_I_(0))"); }
+|	expr					{ cat("+-+",&$$,"std::pair<std::string,iter>((",$1,")->as_str(),_I_(new v_bool(true)))"); }
 
 func_call :
 	IDENTIFIER '(' params ')'
@@ -234,36 +234,33 @@ int yyerror(char *s)
 
 int main()
 {
-	int stat = yyparse();
+	FILE *decl_part, *init_part, *run_part;
+	decl_part = fopen("decl_part","w");
+	init_part = fopen("init_part","w");
+	run_part = fopen("run_part","w");
+	int stat;
+	puts("parsing init.src");
+	freopen("init.src","r",stdin);
+	stat = yyparse();
 	if (stat) return stat;
-	addSymbol("_v_submission");
-	puts("#include \"src/interpreter.h\"");
-	puts("#include \"src/function.h\"");
-	puts("#define LINE_CAT(no) catch (const std::runtime_error &e) { throw std::runtime_error(std::string(\"line \")+no+\" : \"+e.what()); }");
+	fputs(body,init_part);
+	fclose(stdin), fclose(init_part);
+	puts("parsing run.src");
+	freopen("run.src","r",stdin);
+	stat = yyparse();
+	if (stat) return stat;
+	fputs(body,run_part);
+	fclose(stdin), fclose(run_part);
 	if (front.symbol)
 	{
-		//puts("namespace var {");
 		NODE *tail = &front;
 		for (; tail->next; tail=tail->next)
 		{
-			printf(tail == &front? "iter ": ", ");
-			printf(tail->symbol);
+			fprintf(decl_part, tail == &front? "iter ": ", ");
+			fprintf(decl_part, tail->symbol);
 		}
-		puts(";");
-		//puts("}");
+		fputs(";",decl_part);
 	}
-	puts("int main(int argc, char **argv) {");
-	puts("if (argc%2==0) throw std::runtime_error(\"wrong parameter number\");");
-	puts("_v_submission=_I_(new v_list());");
-	puts("for (int i=1;i<argc;i+=2) {");
-		puts("_v_submission->as_list().push_back(_I_(new v_dict()));");
-		puts("_v_submission->as_list().back()->as_dict()[\"language\"]=_I_(new v_str(argv[i]));");
-		puts("_v_submission->as_list().back()->as_dict()[\"source\"]=_I_(new v_str(argv[i+1]));");
-	puts("}");
-	puts(body);
-	puts("return 0;");
-	puts("}");
-	puts("#undef LINE_CAT");
 	return 0;
 }
 

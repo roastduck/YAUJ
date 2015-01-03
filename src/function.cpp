@@ -80,6 +80,13 @@ static std::pair<bool,double> getFloat(char *st, char *en)
 	return std::make_pair(true,ret);
 }
 
+static std::vector<iter> toVector(const iter &src)
+{
+	//if (!src.ptr) return std::vector<iter>();
+	if (src->to() & LIST) return src->as_list();
+	return std::vector<iter>(1,src);
+}
+
 namespace func
 {
 	// math
@@ -134,7 +141,13 @@ namespace func
 	}
 	
 	// misc
-	
+	iter range(const iter &lo, const iter &hi)
+	{
+		iter ret=_I_(new v_list());
+		for (int i=lo;i<hi;i++) ret.add(_I_(new v_int(i)));
+		return ret;
+	}
+
 	iter len(const iter &x)
 	{
 		try
@@ -154,7 +167,7 @@ namespace func
 		try
 		{
 			std::string F = file->as_str();
-			if (F[0]!='/') F = RUN_PATH + F;
+			//if (F[0]!='/') F = RUN_PATH + F;
 			FILE *p = fopen(F.c_str(),"r");
 			static char buff[FUNC_READ_BUFF_MAX+1];
 			buff[fread(buff,1,FUNC_READ_BUFF_MAX,p)]=0;
@@ -192,14 +205,14 @@ namespace func
 	
 	// report
 
-	void report(const iter &score, const iter &verdict, const iter &time, const iter &memory, const iter &message)
+	/*void report(const iter &score, const iter &verdict, const iter &time, const iter &memory, const iter &message)
 	{
 		try
 		{
 			std::cout << score->as_float() << ' ' << verdict->as_str() << ' ' << time->as_int() << ' ' << memory->as_int() << ' ' << message->as_str() << std::endl;
 		}
 		FUNC_END(report);
-	}
+	}*/
 
 	void log(const iter &content)
 	{
@@ -209,23 +222,23 @@ namespace func
 	
 	// execute
 
-	iter exec(const iter &comm, const iter &tl, const iter &ml, const iter &in, const iter &out, const iter &err)
+	iter exec(const iter &cases, const iter &file, const iter &in, const iter &out, const iter &err, const iter &param)
 	{
 		try
 		{
 			std::map<std::string,iter> ret;
 			std::string COMM, IN, OUT, ERR;
 			int TL, ML;
-			COMM = comm->as_str();
+			COMM = file->as_str()+" "+param->as_str();
 			IN = in->as_str();
 			OUT = out->as_str();
-			TL = tl->as_int();
-			ML = ml->as_int();
 			ERR = err->as_str();
-			if (COMM[0]!='/') COMM=RUN_PATH+COMM;
-			if (IN[0]!='/') IN=RUN_PATH+IN;
-			if (OUT[0]!='/') OUT=RUN_PATH+OUT;
-			if (ERR[0]!='/') ERR=RUN_PATH+ERR;
+			TL = _v_filemode[_I_(new v_int(4))][file][_I_(new v_str("time"))][toVector(cases)[0]]->as_int();
+			ML = _v_filemode[_I_(new v_int(4))][file][_I_(new v_str("memory"))][toVector(cases)[0]]->as_int();
+			//if (COMM[0]!='/') COMM=RUN_PATH+COMM;
+			//if (IN[0]!='/') IN=RUN_PATH+IN;
+			//if (OUT[0]!='/') OUT=RUN_PATH+OUT;
+			//if (ERR[0]!='/') ERR=RUN_PATH+ERR;
 			int in_no, out_no, err_no;
 			sandbox_t sbox;
 			try
@@ -274,6 +287,16 @@ namespace func
 			ret["time"] = _I_(new v_int(ts2ms(sbox.stat.cpu_info.clock)));
 			ret["memory"] = _I_(new v_int(sbox.stat.mem_info.vsize_peak));
 			ret["exitcode"] = _I_(new v_int(sbox.stat.exitcode));
+			for (const auto &x : toVector(cases))
+			{
+				result[x][_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("source"))]][_I_(new v_str("time"))]=ret["time"];
+				result[x][_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("source"))]][_I_(new v_str("memory"))]=ret["memory"];
+				if (sbox.result>1)
+				{
+					result[x][_I_(new v_str("status"))]=ret["status"];
+					throw user_error();
+				}
+			}
 			sandbox_fini(&sbox);
 			close(in_no);
 			close(out_no);
@@ -285,7 +308,7 @@ namespace func
 	
 	// compile
 	
-	iter compile(const iter &language, const iter &source, const iter &target, const iter &O2, const iter &define)
+	iter compile(const iter cases, const iter &language, const iter &source, const iter &target, const iter &O2, const iter &define)
 	{
 		try
 		{
@@ -293,18 +316,10 @@ namespace func
 			bool _O2;
 			std::vector<std::string> _SRC, _DEF;
 			_LANG = language->as_str();
-			if (source->to() & LIST)
-				for (const iter &x: source->as_list())
-				{
-					_SRC.push_back(x->as_str());
-					if (_SRC.back()[0]!='/') _SRC.back() = RUN_PATH + _SRC.back();
-				}
-			else
-				_SRC=std::vector<std::string>(1,RUN_PATH+source->as_str());
+			for (const iter &x : toVector(source)) _SRC.push_back(x->as_str());
 			_TAR = target->as_str();
-			if (_TAR[0]!='/') _TAR = RUN_PATH + _TAR;
 			_O2 = O2->as_bool();
-			for (const iter &x: define->as_list()) _DEF.push_back(x->as_str());
+			for (const iter &x: toVector(define)) _DEF.push_back(x->as_str());
 			std::string cmd;
 			if (_LANG == "c++")
 			{
@@ -314,31 +329,31 @@ namespace func
 				if (_O2) cmd += " -O2 ";
 				for (const std::string &x: _DEF) cmd += " -D" + x;
 			} else
-				if (_LANG == "c++11")
-				{
-					cmd = "g++ -std=c++11 ";
-					for (const std::string &x: _SRC) cmd += x + " ";
-					cmd += " -o " + _TAR;
-					if (_O2) cmd += " -O2 ";
-					for (const std::string &x: _DEF) cmd += " -D" + x;
-				} else
-					if (_LANG == "c")
-					{
-						cmd = "gcc ";
-						for (const std::string &x: _SRC) cmd += x + " ";
-						cmd += " -o " + _TAR;
-						if (_O2) cmd += " -O2 ";
-						for (const std::string &x: _DEF) cmd += " -D" + x;
-					} else
-						if (_LANG == "pascal")
-						{
-							cmd = "fpc ";
-							for (const std::string &x: _SRC) cmd += x + " ";
-							cmd += " -o" + _TAR;
-							if (_O2) cmd += " -O2 ";
-							for (const std::string &x: _DEF) cmd += " -d" + x;
-						} else
-							throw std::runtime_error("unknown language : "+_LANG);
+			if (_LANG == "c++11")
+			{
+				cmd = "g++ -std=c++11 ";
+				for (const std::string &x: _SRC) cmd += x + " ";
+				cmd += " -o " + _TAR;
+				if (_O2) cmd += " -O2 ";
+				for (const std::string &x: _DEF) cmd += " -D" + x;
+			} else
+			if (_LANG == "c")
+			{
+				cmd = "gcc ";
+				for (const std::string &x: _SRC) cmd += x + " ";
+				cmd += " -o " + _TAR;
+				if (_O2) cmd += " -O2 ";
+				for (const std::string &x: _DEF) cmd += " -D" + x;
+			} else
+			if (_LANG == "pascal")
+			{
+				cmd = "fpc ";
+				for (const std::string &x: _SRC) cmd += x + " ";
+				cmd += " -o" + _TAR;
+				if (_O2) cmd += " -O2 ";
+				for (const std::string &x: _DEF) cmd += " -d" + x;
+			} else
+				throw std::runtime_error("unknown language : "+_LANG);
 			cmd += " 2>&1 ";
 			std::map<std::string,iter> ret;
 			FILE *stat = popen(cmd.c_str(),"r");
@@ -348,6 +363,12 @@ namespace func
 				std::cerr << "[WARNING] compile : PIPE_READ_BUFF_MAX exceeded" << std::endl;
 			ret["exitcode"]=_I_(new v_int(pclose(stat)));
 			ret["message"]=_I_(new v_str(buff));
+			if (ret["exitcode"])
+			{
+				for (const iter &x : toVector(cases))
+					result[x][_I_(new v_str("status"))]=_I_(new v_str("compile error"));
+				throw user_error();
+			}
 			return _I_(new v_dict(ret));
 		}
 		FUNC_END(compile);
@@ -366,8 +387,8 @@ namespace func
 			W_MODE = w_mode->as_int();
 			if (W_MODE < 0 || W_MODE > 2)
 				throw std::runtime_error("unknown w_mode");
-			if (F1[0]!='/') F1 = RUN_PATH + F1;
-			if (F2[0]!='/') F2 = RUN_PATH + F2;
+			//if (F1[0]!='/') F1 = RUN_PATH + F1;
+			//if (F2[0]!='/') F2 = RUN_PATH + F2;
 			FILE *f1_ptr, *f2_ptr;
 			f1_ptr = fopen(F1.c_str(),"r");
 			f2_ptr = fopen(F2.c_str(),"r");
@@ -443,8 +464,8 @@ namespace func
 			std::string F1, F2;
 			F1 = f1->as_str();
 			F2 = f2->as_str();
-			if (F1[0]!='/') F1 = RUN_PATH + F1;
-			if (F2[0]!='/') F2 = RUN_PATH + F2;
+			//if (F1[0]!='/') F1 = RUN_PATH + F1;
+			//if (F2[0]!='/') F2 = RUN_PATH + F2;
 			return _I_(new v_bool(system(("diff "+F1+" "+F2+" >/dev/null 2>&1").c_str())));
 		}
 		FUNC_END(bin_diff);

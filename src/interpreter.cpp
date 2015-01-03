@@ -245,7 +245,7 @@ iter iter::operator!() const
 	return _I_(new v_bool(! (bool) *this));
 }
 
-iter &iter::operator[](const iter &x) const
+iter &iter::operator[](const iter &x)
 {
 	if (((*this)->to() & LIST) && (x->to() & INT))
 	{
@@ -256,6 +256,8 @@ iter &iter::operator[](const iter &x) const
 			throw std::runtime_error("the subscript is too low or too high");
 		return (*this)->as_list()[id];
 	}
+	if (! static_cast<bool>(ptr) && (x->to() & STR))
+		(*this) = _I_(new v_dict());
 	if (((*this)->to() & DICT) && (x->to() & STR))
 		return (*this)->as_dict()[x->as_str()];
 	throw std::runtime_error("no matched operator []");
@@ -297,8 +299,10 @@ iter iter::operator--(int)
 	throw std::runtime_error("no matched operator --");
 }
 
-const iter &iter::add(const iter &x) const
+iter &iter::add(const iter &x)
 {
+	if (! static_cast<bool> (x.ptr))
+		(*this) = _I_(new v_list());
 	if ((*this)->to() & LIST)
 	{
 		(*this)->as_list().push_back(x);
@@ -307,7 +311,7 @@ const iter &iter::add(const iter &x) const
 	throw std::runtime_error("no matched method add");
 }
 
-const iter &iter::add(const std::pair<std::string,iter> &x) const
+iter &iter::add(const std::pair<std::string,iter> &x)
 {
 	if ((*this)->to() & DICT)
 	{

@@ -134,13 +134,13 @@ class iter
 		v_base_ptr operator->() const;
 		operator bool() const;
 		iter operator!() const;
-		iter &operator[](const iter &x) const;
+		iter &operator[](const iter &x);
 		iter &operator++();
 		iter &operator--();
 		iter operator++(int);
 		iter operator--(int);
-		const iter &add(const iter &x = _I_(0)) const;
-		const iter &add(const std::pair<std::string,iter> &x) const;
+		iter &add(const iter &x = _I_(0));
+		iter &add(const std::pair<std::string,iter> &x);
 };
 
 iter operator+(const iter &a, const iter &b);

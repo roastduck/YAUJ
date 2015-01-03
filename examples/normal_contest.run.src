@@ -1,0 +1,15 @@
+// submission & filemode are globle variable.
+
+ret = compile(range(0,2),submission["SRC"],"SRC","EXE");
+for (i=0; i<2; i++)
+{
+	try
+	{
+		exec_ret = exec(i,"EXE",input[i],"tmp.out");
+		diff_ret = diff("tmp.out",output[i]);
+		if (diff_ret["verdict"])
+			report(0,"wrong answer",exec_ret["time"],exec_ret["memory"],"diff : "+diff_ret["first_diff"]["f1"]+" : "+diff_ret["first_diff"]["f2"]);
+		else
+			report(50,"accept",exec_ret["time"],exec_ret["memory"]);
+	} catch {}
+}

@@ -8,6 +8,8 @@
 #include "interpreter.h"
 #include "config.h"
 
+extern iter _v_submission, _v_filemode, result;
+
 namespace func
 {
 	// math
@@ -22,16 +24,17 @@ namespace func
 	void sort(const iter &x);
 
 	// misc
+	iter range(const iter &lo, const iter &hi);
 	iter len(const iter &x);
 	iter read(const iter &file);
 	/*
 	 *	$ split : split str into list
 	 *	@1 : str : str.
-	 *	@2 : pat : patterns. split by any character in it.
+	 *	@2 : pat : str. patterns. split by any character in it.
 	 */
 	iter split(const iter &str, const iter &pat = _I_(new v_str(" \t\r\n")));
 	
-	// report
+	// report (deprecated)
 	/*
 	 * $ report :
 	 * @1 score : float.
@@ -40,7 +43,7 @@ namespace func
 	 * @4 memory : int. int bytes.
 	 * @5 message : str. extra message.
 	 */
-	void report(const iter &score, const iter &verdict, const iter &time, const iter &memory, const iter &message = _I_(new v_str("")));
+	//void report(const iter &score, const iter &verdict, const iter &time, const iter &memory, const iter &message = _I_(new v_str("")));
 	
 	/*
 	 * $ log : output a log
@@ -50,13 +53,13 @@ namespace func
 
 	// execute
 	/*
-	 *	$ exec : execute a command in sandbox.
-	 *	@1 comm : str. command to be executed.
-	 *	@2 tl : int. time limit in ms.
-	 *	@3 ml : int. memory limit in bytes.
-	 *	@4 in : str. stdin redirection path.
-	 *	@5 out : str. stdout redirection path.
-	 *	@6 err : str. stderr redirection path.
+	 *	$ exec : execute a executable file in sandbox
+	 *	@1 cases : null, int or list of int. testcases involved.
+	 *	@2 file : str. file to be executed.
+	 *	@3 in : str. stdin redirection.
+	 *	@4 out : str. stdout redirection.
+	 *	@5 err : str. stderr redirection.
+	 *	@6 param : parameters.
 	 *	@return : dict.
 	 *		["status"] : str. "accept" / "restricted function" / "memory limit exceed" / "output limit exceed" / "time limit exceed" / "run time error" / "abnormal termination" / "internal error" / "bad policy" / "unknown error".
 	 *		["time"] : int. cpu time in ms.
@@ -65,28 +68,30 @@ namespace func
 	 */
 	iter exec
 		(
-		 const iter &comm,
-		 const iter &tl = _I_(new v_int(DEFAULT_CPU_LIMIT)),
-		 const iter &ml = _I_(new v_int(DEFAULT_MEMORY_LIMIT)),
+		 const iter &cases,
+		 const iter &file,
 		 const iter &in = _I_(new v_str("/dev/null")),
 		 const iter &out = _I_(new v_str("/dev/null")),
-		 const iter &err = _I_(new v_str("/dev/null"))
+		 const iter &err = _I_(new v_str("/dev/null")),
+		 const iter &param = _I_(new v_str(""))
 		);
 
 	// compile
 	/*
 	 *	$ compile : compile with certian options.
-	 *	@1 language : str. "c++" / "c++11" / "c" / "pascal".
-	 *	@2 source : str or list of str. path to source.
-	 *	@3 target : str. path to binary target.
-	 *	@4 O2 : bool. whether to compile with "O2"
-	 *	@5 define : list of str. macros passed to compiler.
+	 *	@1 cases : null, int or list of int. testcases involved.
+	 *	@2 language : str. "c++" / "c++11" / "c" / "pascal".
+	 *	@3 source : str or list of str. path to source.
+	 *	@4 target : str. path to binary target.
+	 *	@5 O2 : bool. whether to compile with "O2"
+	 *	@6 define : list of str. macros passed to compiler.
 	 *	@return : dict
 	 *		["exitcode"] : int. exit code
 	 *		["message"] : str. compiling message.
 	 */
 	iter compile
 		(
+		 const iter &cases,
 		 const iter &language,
 		 const iter &source,
 		 const iter &target,

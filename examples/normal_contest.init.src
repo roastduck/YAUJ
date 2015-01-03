@@ -1,0 +1,17 @@
+// submission & filemode are globle variable.
+// filemode 0: read by participant, 1: written by participant, 2: participant's source file, 3: data file, 4: executable file.
+
+filemode[2]["SRC"]={"language":{"c","c++","pascal"}};
+filemode[4]["EXE"]={"source":"SRC","time":[],"memory":[]};
+
+for (i=0;i<2;i++)
+{
+	filemode[3]["data"+i+".in"]={"case":i};
+	filemode[3]["data"+i+".out"]={"case":i};
+	filemode[4]["EXE"]["time"][]=1000;
+	filemode[4]["EXE"]["memory"][]=268435456;
+	input[]="data"+i+".in";
+	output[]="data"+i+".out";
+}
+
+// check file name conflict?
