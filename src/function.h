@@ -28,6 +28,12 @@ namespace func
 	iter len(const iter &x);
 	iter read(const iter &file);
 	/*
+	 *	$ copy : file copy
+	 *	@1 : src : str
+	 *	@2 : tar : str 
+	 */
+	void copy(const iter &src, const iter &tar);
+	/*
 	 *	$ split : split str into list
 	 *	@1 : str : str.
 	 *	@2 : pat : str. patterns. split by any character in it.

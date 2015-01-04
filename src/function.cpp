@@ -178,6 +178,15 @@ namespace func
 		FUNC_END(read);
 	}
 	
+	void copy(const iter &src, const iter &tar)
+	{
+		try
+		{
+			system(("cp "+src->as_str()+" "+tar->as_str()).c_str());
+		}
+		FUNC_END(copy);
+	}
+	
 	iter split(const iter &str, const iter &pat)
 	{
 		try
