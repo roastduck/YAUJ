@@ -144,7 +144,7 @@ namespace func
 	iter range(const iter &lo, const iter &hi)
 	{
 		iter ret=_I_(new v_list());
-		for (int i=lo;i<hi;i++) ret.add(_I_(new v_int(i)));
+		for (int i=lo->as_int();i<hi->as_int();i++) ret.add(_I_(new v_int(i)));
 		return ret;
 	}
 
@@ -171,8 +171,8 @@ namespace func
 			FILE *p = fopen(F.c_str(),"r");
 			static char buff[FUNC_READ_BUFF_MAX+1];
 			buff[fread(buff,1,FUNC_READ_BUFF_MAX,p)]=0;
+			if (!feof(p)) throw fclose(p), std::runtime_error("FUNC_READ_BUFF_MAX exceeded");
 			fclose(p);
-			if (feof(p)) throw std::runtime_error("FUNC_READ_BUFF_MAX exceeded");
 			return _I_(new v_str(buff));
 		}
 		FUNC_END(read);
@@ -216,7 +216,7 @@ namespace func
 
 	void log(const iter &content)
 	{
-		try { std::clog << content->as_str() << std::endl; }
+		try { std::clog << content->as_json() << std::endl; }
 		FUNC_END(log);
 	}
 	
@@ -235,6 +235,8 @@ namespace func
 			ERR = err->as_str();
 			TL = _v_filemode[_I_(new v_int(4))][file][_I_(new v_str("time"))][toVector(cases)[0]]->as_int();
 			ML = _v_filemode[_I_(new v_int(4))][file][_I_(new v_str("memory"))][toVector(cases)[0]]->as_int();
+			COMM="./"+COMM;
+			while (COMM.back()==' ') COMM.pop_back();
 			//if (COMM[0]!='/') COMM=RUN_PATH+COMM;
 			//if (IN[0]!='/') IN=RUN_PATH+IN;
 			//if (OUT[0]!='/') OUT=RUN_PATH+OUT;
@@ -289,11 +291,12 @@ namespace func
 			ret["exitcode"] = _I_(new v_int(sbox.stat.exitcode));
 			for (const auto &x : toVector(cases))
 			{
-				result[x][_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("source"))]][_I_(new v_str("time"))]=ret["time"];
-				result[x][_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("source"))]][_I_(new v_str("memory"))]=ret["memory"];
+				_v_result[x][_I_(new v_str("time"))][_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("source"))]]=ret["time"];
+				_v_result[x][_I_(new v_str("memory"))][_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("source"))]]=ret["memory"];
 				if (sbox.result>1)
 				{
-					result[x][_I_(new v_str("status"))]=ret["status"];
+					_v_result[x][_I_(new v_str("status"))]=ret["status"];
+					_v_result[x][_I_(new v_str("score"))]=_I_(new v_int(0));
 					throw user_error();
 				}
 			}
@@ -308,7 +311,7 @@ namespace func
 	
 	// compile
 	
-	iter compile(const iter cases, const iter &language, const iter &source, const iter &target, const iter &O2, const iter &define)
+	iter compile(const iter &cases, const iter &language, const iter &source, const iter &target, const iter &O2, const iter &define)
 	{
 		try
 		{
@@ -323,7 +326,7 @@ namespace func
 			std::string cmd;
 			if (_LANG == "c++")
 			{
-				cmd = "g++ ";
+				cmd = "g++ -x c++ ";
 				for (const std::string &x: _SRC) cmd += x + " ";
 				cmd += " -o " + _TAR;
 				if (_O2) cmd += " -O2 ";
@@ -331,7 +334,7 @@ namespace func
 			} else
 			if (_LANG == "c++11")
 			{
-				cmd = "g++ -std=c++11 ";
+				cmd = "g++ -x c++ -std=c++11 ";
 				for (const std::string &x: _SRC) cmd += x + " ";
 				cmd += " -o " + _TAR;
 				if (_O2) cmd += " -O2 ";
@@ -339,7 +342,7 @@ namespace func
 			} else
 			if (_LANG == "c")
 			{
-				cmd = "gcc ";
+				cmd = "gcc -x c ";
 				for (const std::string &x: _SRC) cmd += x + " ";
 				cmd += " -o " + _TAR;
 				if (_O2) cmd += " -O2 ";
@@ -366,7 +369,11 @@ namespace func
 			if (ret["exitcode"])
 			{
 				for (const iter &x : toVector(cases))
-					result[x][_I_(new v_str("status"))]=_I_(new v_str("compile error"));
+				{
+					_v_result[x][_I_(new v_str("status"))]=_I_(new v_str("compile error"));
+					_v_result[x][_I_(new v_str("score"))]=_I_(new v_int(0));
+					_v_result[x][_I_(new v_str("message"))]=ret["message"];
+				}
 				throw user_error();
 			}
 			return _I_(new v_dict(ret));
@@ -401,10 +408,10 @@ namespace func
 			static char buff1[DIFF_FILE_BUFF_MAX+1], buff2[DIFF_FILE_BUFF_MAX+1]; // null-termination
 			buff1[fread(buff1,1,DIFF_FILE_BUFF_MAX,f1_ptr)]=0;
 			buff2[fread(buff2,1,DIFF_FILE_BUFF_MAX,f2_ptr)]=0;
+			if ((ferror(f1_ptr) || !feof(f1_ptr)) && (ferror(f2_ptr) || !feof(f2_ptr)))
+				throw fclose(f1_ptr), fclose(f2_ptr), std::runtime_error("DIFF_FILE_BUFF_MAX exceeded");
 			fclose(f1_ptr);
 			fclose(f2_ptr);
-			if ((ferror(f1_ptr) || !feof(f1_ptr)) && (ferror(f2_ptr) || !feof(f2_ptr)))
-				throw std::runtime_error("DIFF_FILE_BUFF_MAX exceeded");
 			if (W_MODE == 1)
 				mode1filter(buff1), mode1filter(buff2);
 			if (W_MODE == 2)

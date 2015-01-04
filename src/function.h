@@ -8,7 +8,7 @@
 #include "interpreter.h"
 #include "config.h"
 
-extern iter _v_submission, _v_filemode, result;
+extern iter _v_submission, _v_filemode, _v_result;
 
 namespace func
 {

@@ -4,6 +4,7 @@
 		"params":
 		{
 			"pid": 0,
+			"sid": 0,
 			"submission": []
 		},
 		"returns": []

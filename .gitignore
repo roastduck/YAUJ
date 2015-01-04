@@ -3,8 +3,11 @@
 !src/
 !editor/
 !examples/
-!parser.tab.c
-!parser.tab.h
-!lex.yy.c
+!build
+build/*
+!build/parser.tab.c
+!build/parser.tab.h
+!build/lex.yy.c
+!build/abstractstubserver.h
 !makefile
 *.swp

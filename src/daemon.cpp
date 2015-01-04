@@ -13,12 +13,15 @@ Json::Reader reader;
 
 Json::Value dumpCmd(const std::string &cmd)
 {
+#ifdef DEBUG
+	std::clog << cmd << std::endl;
+#endif
 	FILE *res = popen(cmd.c_str(),"r");
 	char *buff = new char [PIPE_READ_BUFF_MAX+1];
 	buff[fread(buff,1,PIPE_READ_BUFF_MAX,res)]=0;
-	fclose(res);
 	if (!feof(res))
 		std::cerr << "[ERROR] PIPE_READ_BUFF_MAX exceeded" << std::endl;
+	pclose(res);
 	Json::Value ret;
 	if (!reader.parse(buff,ret))
 		std::cerr << "[ERROR] return value is not JSON format" << std::endl;
@@ -34,23 +37,46 @@ class Server : public AbstractStubServer
 		Server(AbstractServerConnector &connector, serverVersion_t type)
 			: runningCnt(0), totCnt(0), AbstractStubServer(connector,type) {}
 		
-		virtual Json::Value run(int pid, const Json::Value &submission)
+		virtual Json::Value run(int pid, int sid, const Json::Value &submission)
 		{
 			runningCnt++, totCnt++;
-			std::ostringstream ss;
+			std::ostringstream ss, ss2;
 			char cwd[WD_BUFF_MAX];
-			getwd(cwd);
+			getcwd(cwd,WD_BUFF_MAX);
 			ss << RUN_PATH << "/" << totCnt;
-			system(("mkdir "+ss.str()).c_str());
+#ifdef DEBUG
+			std::clog << ("mkdir -p "+ss.str()) << std::endl;
+#endif
+			system(("mkdir -p "+ss.str()).c_str());
+#ifdef DEBUG
+			std::clog << "chdir to " << ss.str() << std::endl;
+#endif
 			chdir(ss.str().c_str());
 			ss.str("");
 			ss << "cp " DATA_PATH "/" << pid << "/* .";
+#ifdef DEBUG
+			std::clog << ss.str() << std::endl;
+#endif
 			system(ss.str().c_str());
-			ss.str("./yauj_judger run");
+			ss.str("");
+			ss << "./yauj_judger run";
+			ss2 << "cp " SOURCE_PATH "/" << sid << '/';
 			for (Json::ValueIterator i=submission.begin(); i!=submission.end(); i++)
-				ss << " " << (*i)["language"].asString() << " " << (*i)["source"];
+			{
+				ss << " " << (*i)["language"].asString() << " " << (*i)["source"].asString();
+				ss2 << (*i)["source"].asString() << ' ';
+			}
+#ifdef DEBUG
+			std::clog << ss2.str()+"." << std::endl;
+#endif
+			system((ss2.str()+".").c_str());
 			Json::Value ret=dumpCmd(ss.str());
 			chdir(cwd);
+#ifndef DEBUG
+			ss.str("");
+			ss << "rm -r " << RUN_PATH << "/" << totCnt;
+			system(ss.str().c_str());
+#endif
 			runningCnt--;
 			return ret;
 		}

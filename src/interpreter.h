@@ -124,8 +124,8 @@ class v_dict : public v_base
 
 class iter
 {
-	v_base_ptr ptr;
 	public :
+		v_base_ptr ptr;
 		iter();
 		iter(v_base_ptr x);
 		iter(const iter &x);

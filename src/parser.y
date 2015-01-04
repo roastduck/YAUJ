@@ -1,7 +1,7 @@
 %{
 
 #include <stdio.h>
-#include "src/mystr.h"
+#include "mystr.h"
 
 extern int yylineno;
 
@@ -246,11 +246,15 @@ int main()
 	fputs(body,init_part);
 	fclose(stdin), fclose(init_part);
 	puts("parsing run.src");
+	yylineno=1;
 	freopen("run.src","r",stdin);
 	stat = yyparse();
 	if (stat) return stat;
 	fputs(body,run_part);
 	fclose(stdin), fclose(run_part);
+	addSymbol("_v_submission");
+	addSymbol("_v_filemode");
+	addSymbol("_v_result");
 	if (front.symbol)
 	{
 		NODE *tail = &front;

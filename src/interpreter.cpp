@@ -169,7 +169,7 @@ bool v_list::as_bool() const
 Json::Value v_list::as_json() const
 {
 	Json::Value ret;
-	for (size_t i=0;i<data.size();i++)
+	for (size_t i=0;i<data.size();i++) if (static_cast<bool>(data[i].ptr))
 		ret[Json::ArrayIndex(i)]=data[i]->as_json();
 	return ret;
 }
@@ -196,7 +196,7 @@ bool v_dict::as_bool() const
 Json::Value v_dict::as_json() const
 {
 	Json::Value ret;
-	for (const auto &x : data)
+	for (const auto &x : data) if (static_cast<bool>(x.second.ptr))
 		ret[x.first]=x.second->as_json();
 	return ret;
 }
@@ -247,13 +247,16 @@ iter iter::operator!() const
 
 iter &iter::operator[](const iter &x)
 {
-	if (((*this)->to() & LIST) && (x->to() & INT))
+	if (! static_cast<bool>(ptr) && (x->to() & INT))
+		(*this) = _I_(new v_list());
+	if (static_cast<bool>(ptr) && ((*this)->to() & LIST) && (x->to() & INT))
 	{
 		int id(x->as_int());
 		std::vector<iter> &V=(*this)->as_list();
 		if (id<0) id+=V.size();
-		if (id<0 || (size_t)id>=V.size())
-			throw std::runtime_error("the subscript is too low or too high");
+		if (id<0)
+			throw std::runtime_error("the subscript is too low");
+		while ((size_t)id>=V.size()) V.push_back(_I_(0));
 		return (*this)->as_list()[id];
 	}
 	if (! static_cast<bool>(ptr) && (x->to() & STR))
@@ -301,7 +304,7 @@ iter iter::operator--(int)
 
 iter &iter::add(const iter &x)
 {
-	if (! static_cast<bool> (x.ptr))
+	if (! static_cast<bool> (ptr))
 		(*this) = _I_(new v_list());
 	if ((*this)->to() & LIST)
 	{
