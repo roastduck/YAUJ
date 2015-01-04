@@ -300,11 +300,18 @@ namespace func
 			ret["exitcode"] = _I_(new v_int(sbox.stat.exitcode));
 			for (const auto &x : toVector(cases))
 			{
-				_v_result[x][_I_(new v_str("time"))][_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("source"))]]=ret["time"];
-				_v_result[x][_I_(new v_str("memory"))][_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("source"))]]=ret["memory"];
+				iter src=_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("source"))];
+				if (src && _v_filemode[_I_(new v_int(2))][src])
+				{
+					_v_result[x][_I_(new v_str("time"))][_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("source"))]]=ret["time"];
+					_v_result[x][_I_(new v_str("memory"))][_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("source"))]]=ret["memory"];
+				}
 				if (sbox.result>1)
 				{
-					_v_result[x][_I_(new v_str("status"))]=ret["status"];
+					if (src && _v_filemode[_I_(new v_int(2))][src])
+						_v_result[x][_I_(new v_str("status"))]=ret["status"];
+					else
+						_v_result[x][_I_(new v_str("status"))]=_I_(new v_str("spj error"));
 					_v_result[x][_I_(new v_str("score"))]=_I_(new v_int(0));
 					throw user_error();
 				}

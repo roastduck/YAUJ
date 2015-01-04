@@ -1,6 +1,8 @@
 // submission & filemode are globle variable.
 // filemode 0: read by participant, 1: written by participant, 2: participant's source file, 3: data file, 4: executable file.
 
+filemode[0]["data.in"]={"by":"SRC"};
+filemode[1]["data.out"]={"by":"SRC"};
 filemode[2]["SRC"]={"language":{"c","c++","pascal"}};
 filemode[4]["EXE"]={"source":"SRC","time":[],"memory":[]};
 
