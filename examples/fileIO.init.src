@@ -11,7 +11,7 @@ for (i=0;i<4;i++)
 	filemode[3]["data"+(i+1)+".in"]={"case":i};
 	filemode[3]["data"+(i+1)+".out"]={"case":i};
 	filemode[4]["EXE"]["time"][]=1000;
-	filemode[4]["EXE"]["memory"][]=268435456;
+	filemode[4]["EXE"]["memory"][]=262144;
 	input[]="data"+(i+1)+".in";
 	output[]="data"+(i+1)+".out";
 }
