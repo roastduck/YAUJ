@@ -1,0 +1,22 @@
+#include<cstdio>
+int main()
+{
+	int a, b, *p;
+	scanf("%d%d",&a,&b);
+	switch (a)
+	{
+		case 0:
+			printf("%d\n",a+b);
+			break;
+		case 1:
+			printf("%d\n",a+b-1);
+			break;
+		case 2:
+			for (;;) ;
+			break;
+		case 3:
+			p=new int [10000*10000];
+	}
+	return 0;
+}
+

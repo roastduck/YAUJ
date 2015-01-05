@@ -1,0 +1,9 @@
+var
+	a, b: longint;
+begin
+	assign(input,'data.in'); reset(input);
+	assign(output,'data.out'); rewrite(output);
+	readln(a,b);
+	writeln(a+b);
+end.
+
