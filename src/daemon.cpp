@@ -59,7 +59,7 @@ class Server : public AbstractStubServer
 #endif
 			system(ss.str().c_str());
 			ss.str("");
-			ss << "./yauj_judger run";
+			ss << "./yauj_judge run";
 			ss2 << "cp " SOURCE_PATH "/" << sid << '/';
 			for (Json::ValueIterator i=submission.begin(); i!=submission.end(); i++)
 			{
@@ -84,11 +84,11 @@ class Server : public AbstractStubServer
 		virtual Json::Value loadConf(int pid)
 		{
 			std::ostringstream ss;
-			ss << DATA_PATH"/" << pid << "/yauj_judger loadconf";
+			ss << DATA_PATH"/" << pid << "/yauj_judge loadconf";
 			return dumpCmd(ss.str());
 		}
 		
-		virtual Json::Value judgerStatus()
+		virtual Json::Value judgeStatus()
 		{
 			Json::Value ret;
 			ret["runningCnt"]=runningCnt;

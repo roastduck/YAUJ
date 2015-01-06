@@ -9,8 +9,8 @@
 void usage()
 {
 	std::cout << "USAGE:" << std::endl;
-	std::cout << "yauj_judger run [lang1 src1 [lang2 src2 ...]]" << std::endl;
-	std::cout << "yauj_judger loadconf" << std::endl;
+	std::cout << "yauj_judge run [lang1 src1 [lang2 src2 ...]]" << std::endl;
+	std::cout << "yauj_judge loadconf" << std::endl;
 }
 
 #include "decl_part"

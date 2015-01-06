@@ -14,7 +14,7 @@ class AbstractStubServer : public jsonrpc::AbstractServer<AbstractStubServer>
         {
             this->bindAndAddMethod(jsonrpc::Procedure("run", jsonrpc::PARAMS_BY_NAME, jsonrpc::JSON_ARRAY, "pid",jsonrpc::JSON_INTEGER,"sid",jsonrpc::JSON_INTEGER,"submission",jsonrpc::JSON_ARRAY, NULL), &AbstractStubServer::runI);
             this->bindAndAddMethod(jsonrpc::Procedure("loadConf", jsonrpc::PARAMS_BY_NAME, jsonrpc::JSON_ARRAY, "pid",jsonrpc::JSON_INTEGER, NULL), &AbstractStubServer::loadConfI);
-            this->bindAndAddMethod(jsonrpc::Procedure("judgerStatus", jsonrpc::PARAMS_BY_NAME, jsonrpc::JSON_OBJECT,  NULL), &AbstractStubServer::judgerStatusI);
+            this->bindAndAddMethod(jsonrpc::Procedure("judgeStatus", jsonrpc::PARAMS_BY_NAME, jsonrpc::JSON_OBJECT,  NULL), &AbstractStubServer::judgeStatusI);
         }
 
         inline virtual void runI(const Json::Value &request, Json::Value &response)
@@ -25,14 +25,14 @@ class AbstractStubServer : public jsonrpc::AbstractServer<AbstractStubServer>
         {
             response = this->loadConf(request["pid"].asInt());
         }
-        inline virtual void judgerStatusI(const Json::Value &request, Json::Value &response)
+        inline virtual void judgeStatusI(const Json::Value &request, Json::Value &response)
         {
             (void)request;
-            response = this->judgerStatus();
+            response = this->judgeStatus();
         }
         virtual Json::Value run(int pid, int sid, const Json::Value& submission) = 0;
         virtual Json::Value loadConf(int pid) = 0;
-        virtual Json::Value judgerStatus() = 0;
+        virtual Json::Value judgeStatus() = 0;
 };
 
 #endif //JSONRPC_CPP_STUB_ABSTRACTSTUBSERVER_H_
