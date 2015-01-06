@@ -231,20 +231,24 @@ namespace func
 		try
 		{
 			std::map<std::string,iter> ret;
-			std::string COMM, IN, OUT, ERR, TL, ML;
+			std::string COMM, IN, OUT, ERR, TL, ML, SL;
 			COMM = file->as_str()+" "+param->as_str();
 			IN = in->as_str();
 			OUT = out->as_str();
 			ERR = err->as_str();
 			TL = _v_filemode[_I_(new v_int(4))][file][_I_(new v_str("time"))][toVector(cases)[0]]->as_str();
 			ML = _v_filemode[_I_(new v_int(4))][file][_I_(new v_str("memory"))][toVector(cases)[0]]->as_str();
+			if (_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("stack"))][toVector(cases)[0]])
+				SL = _v_filemode[_I_(new v_int(4))][file][_I_(new v_str("stack"))][toVector(cases)[0]]->as_str();
+			else
+				SL = "8192";
 			//COMM="./"+COMM;
 			while (COMM.back()==' ') COMM.pop_back();
 			int u_stat, u_time, u_mem, u_ret;
 #ifdef DEBUG
-			std::clog << "uoj_run -T "+TL+" -M "+ML+" -i "+IN+" -o "+OUT+" -e "+ERR+" "+COMM << std::endl;
+			std::clog << "uoj_run -T "+TL+" -M "+ML+" -S "+SL+" -i "+IN+" -o "+OUT+" -e "+ERR+" "+COMM << std::endl;
 #endif
-			FILE *sandbox = popen(("uoj_run -T "+TL+" -M "+ML+" -i "+IN+" -o "+OUT+" -e "+ERR+" "+COMM).c_str(),"r");
+			FILE *sandbox = popen(("uoj_run -T "+TL+" -M "+ML+" -S "+SL+" -i "+IN+" -o "+OUT+" -e "+ERR+" "+COMM).c_str(),"r");
 			fscanf(sandbox,"%d%d%d%d",&u_stat,&u_time,&u_mem,&u_ret);
 			pclose(sandbox);
 			ret["status"] = _I_(new v_str(
