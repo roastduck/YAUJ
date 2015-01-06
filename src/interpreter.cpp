@@ -334,6 +334,12 @@ iter operator+(const iter &a, const iter &b)
 		return _I_(new v_float(a->as_float() + b->as_float()));
 	if ((a->to() & STR) && (b->to() & STR))
 		return _I_(new v_str(a->as_str() + b->as_str()));
+	if ((a->to() & LIST) && (b->to() & LIST))
+	{
+		iter ret = a;
+		for (const iter x : b->as_list()) a->as_list().push_back(x);
+		return ret;
+	}
 	throw std::runtime_error("no matched operator +");
 }
 
@@ -346,12 +352,34 @@ iter operator-(const iter &a, const iter &b)
 	throw std::runtime_error("no matched operator -");
 }
 
+iter &operator+=(iter &a, const iter &b)
+{
+	return a = a + b;
+}
+
+iter &operator-=(iter &a, const iter &b)
+{
+	return a = a - b;
+}
+
 iter operator*(const iter &a, const iter &b)
 {
 	if ((a->to() & INT) && (b->to() & INT))
 		return _I_(new v_int(a->as_int() * b->as_int()));
 	if ((a->to() & FLOAT) && (b->to() & FLOAT))
 		return _I_(new v_float(a->as_float() * b->as_float()));
+	if ((a->to() & LIST) && (b->to() & INT) && b->as_int()>=0)
+	{
+		iter ret = _I_(new v_list());
+		for (int i=1;i<=b->as_int();i++) ret += a;
+		return ret;
+	}
+	if ((b->to() & LIST) && (a->to() & INT) && a->as_int()>=0)
+	{
+		iter ret = _I_(new v_list());
+		for (int i=1;i<=a->as_int();i++) ret += b;
+		return ret;
+	}
 	throw std::runtime_error("no matched operator *");
 }
 

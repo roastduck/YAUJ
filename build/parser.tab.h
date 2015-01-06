@@ -77,8 +77,10 @@ extern int yydebug;
     TRY = 287,
     CATCH = 288,
     THROW = 289,
-    LEQ = 290,
-    GEQ = 291
+    PLUSEQ = 290,
+    MINUSEQ = 291,
+    LEQ = 292,
+    GEQ = 293
   };
 #endif
 

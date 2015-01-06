@@ -39,9 +39,9 @@ inline void addSymbol(char *s)
 
 %token IDENTIFIER INTEGER FLOAT EQ FEQ NEQ NFEQ AND OR FOR WHILE DO IF VMINUS VPOSI
 %token PLUSPLUS MINUSMINUS VFPLUSPLUS VFMINUSMINUS ELSE TRUE FALSE STR SUBACCESS
-%token FOREACH ARROW AS BREAK CONTINUE TRY CATCH THROW
+%token FOREACH ARROW AS BREAK CONTINUE TRY CATCH THROW PLUSEQ MINUSEQ
 
-%right '='
+%right '=' PLUSEQ MINUSEQ
 %left OR
 %left AND
 %left EQ FEQ NEQ NFEQ
@@ -140,6 +140,8 @@ expr :
 |	expr '/' expr			{ cat("---",&$$,$1,$2,$3); }
 |	expr '%' expr			{ cat("---",&$$,$1,$2,$3); }
 |	expr '=' expr			{ cat("---",&$$,$1,$2,$3); }
+|	expr PLUSEQ expr		{ cat("---",&$$,$1,$2,$3); }
+|	expr MINUSEQ expr		{ cat("---",&$$,$1,$2,$3); }
 |	expr '<' expr			{ cat("---",&$$,$1,$2,$3); }
 |	expr '>' expr			{ cat("---",&$$,$1,$2,$3); }
 |	expr LEQ expr			{ cat("---",&$$,$1,$2,$3); }

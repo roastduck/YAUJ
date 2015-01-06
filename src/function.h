@@ -26,6 +26,11 @@ namespace func
 	// misc
 	iter range(const iter &lo, const iter &hi);
 	iter len(const iter &x);
+	/*
+	 *	$ read : read file to str.
+	 *	@1 : file : file name.
+	 *   @return : content. empty string when file not exists.
+	 */
 	iter read(const iter &file);
 	/*
 	 *	$ copy : file copy
@@ -34,22 +39,12 @@ namespace func
 	 */
 	void copy(const iter &src, const iter &tar);
 	/*
-	 *	$ split : split str into list
+	 *	$ split : split str into list, converting every single element of it to number if possible.
 	 *	@1 : str : str.
 	 *	@2 : pat : str. patterns. split by any character in it.
+	 *   @return : the list.
 	 */
 	iter split(const iter &str, const iter &pat = _I_(new v_str(" \t\r\n")));
-	
-	// report (deprecated)
-	/*
-	 * $ report :
-	 * @1 score : float.
-	 * @2 verdict : str.
-	 * @3 time : int. in ms.
-	 * @4 memory : int. int bytes.
-	 * @5 message : str. extra message.
-	 */
-	//void report(const iter &score, const iter &verdict, const iter &time, const iter &memory, const iter &message = _I_(new v_str("")));
 	
 	/*
 	 * $ log : output a log
@@ -67,7 +62,7 @@ namespace func
 	 *	@5 err : str. stderr redirection.
 	 *	@6 param : parameters.
 	 *	@return : dict.
-	 *		["status"] : str. "accept" / "restricted function" / "memory limit exceed" / "output limit exceed" / "time limit exceed" / "run time error" / "abnormal termination" / "internal error" / "bad policy" / "unknown error".
+	 *		["status"] : str. "accepted" / "memory limit exceed" / "output limit exceed" / "time limit exceed" / "runtime error" / "internal error" / "dangerous syscall".
 	 *		["time"] : int. cpu time in ms.
 	 *		["memory"] : int. maximum memory use in byte.
 	 *		["exitcode"] : int. exit code.

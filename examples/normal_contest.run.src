@@ -15,7 +15,7 @@ for (i=0; i<4; i++)
 		}
 		else
 		{
-			result[i]["status"]="accept";
+			result[i]["status"]="accepted";
 			result[i]["score"]=25;
 		}
 	} catch {}

@@ -73,6 +73,8 @@ Z       [zZ]
 "||"|{O}{R}					{ cn2(&yylval,"||"); return(OR); }
 "++"							{ cn3(&yylval,yytext,yyleng); return(PLUSPLUS); }
 "--"							{ cn3(&yylval,yytext,yyleng); return(MINUSMINUS); }
+"+="							{ cn3(&yylval,yytext,yyleng); return(PLUSEQ); }
+"-="							{ cn3(&yylval,yytext,yyleng); return(MINUSEQ); }
 ","							{ cn3(&yylval,yytext,yyleng); return(','); }
 ";"							{ cn3(&yylval,yytext,yyleng); return(';'); }
 ":"							{ cn3(&yylval,yytext,yyleng); return(':'); }

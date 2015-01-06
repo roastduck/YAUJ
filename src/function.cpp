@@ -7,11 +7,13 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
+#include <regex>
 #include <string>
 #include <iostream>
 #include <algorithm>
 #include <exception>
 #include <stdexcept>
+#include <boost/regex.hpp>
 #include "function.h"
 #include "uoj_env.h"
 
@@ -164,6 +166,7 @@ namespace func
 			std::string F = file->as_str();
 			//if (F[0]!='/') F = RUN_PATH + F;
 			FILE *p = fopen(F.c_str(),"r");
+			if (!p) return _I_(new v_str(""));
 			static char buff[FUNC_READ_BUFF_MAX+1];
 			buff[fread(buff,1,FUNC_READ_BUFF_MAX,p)]=0;
 			if (!feof(p)) throw fclose(p), std::runtime_error("FUNC_READ_BUFF_MAX exceeded");
@@ -186,6 +189,7 @@ namespace func
 	{
 		try
 		{
+			static boost::regex regi("[0-9]+"), regf("[0-9]*\\.[0-9]+");
 			std::string s = str->as_str(), p = pat->as_str();
 			std::vector<iter> ret;
 			size_t pos(0);
@@ -195,11 +199,28 @@ namespace func
 				next = s.find_first_of(p,pos);
 				if (next==std::string::npos)
 				{
-					if (pos<s.length()) ret.push_back(_I_(new v_str(s.substr(pos))));
+					if (pos<s.length())
+					{
+						std::string t = s.substr(pos);
+						if (boost::regex_match(t,regi))
+							ret.push_back(_I_(new v_int(stoi(t))));
+						else if (boost::regex_match(t,regf))
+							ret.push_back(_I_(new v_float(stod(t))));
+						else
+							ret.push_back(_I_(new v_str(t)));
+					}
 					break;
 				}
 				if (next>pos)
-					ret.push_back(_I_(new v_str(s.substr(pos,next-pos))));
+				{
+					std::string t = s.substr(pos,next-pos);
+					if (boost::regex_match(t,regi))
+						ret.push_back(_I_(new v_int(stoi(t))));
+					else if (boost::regex_match(t,regf))
+						ret.push_back(_I_(new v_float(stod(t))));
+					else
+						ret.push_back(_I_(new v_str(t)));
+				}
 				pos = next+1;
 			}
 			return _I_(new v_list(ret));
@@ -237,8 +258,14 @@ namespace func
 			IN = in->as_str();
 			OUT = out->as_str();
 			ERR = err->as_str();
-			TL = _v_filemode[_I_(new v_int(4))][file][_I_(new v_str("time"))][toVector(cases)[0]]->as_str();
-			ML = _v_filemode[_I_(new v_int(4))][file][_I_(new v_str("memory"))][toVector(cases)[0]]->as_str();
+			if (_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("time"))][toVector(cases)[0]])
+				TL = _v_filemode[_I_(new v_int(4))][file][_I_(new v_str("time"))][toVector(cases)[0]]->as_str();
+			else
+				TL = "5000"; // spj limit
+			if (_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("memory"))][toVector(cases)[0]])
+				ML = _v_filemode[_I_(new v_int(4))][file][_I_(new v_str("memory"))][toVector(cases)[0]]->as_str();
+			else
+				ML = "524288";
 			if (_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("stack"))][toVector(cases)[0]])
 				SL = _v_filemode[_I_(new v_int(4))][file][_I_(new v_str("stack"))][toVector(cases)[0]]->as_str();
 			else
@@ -274,34 +301,45 @@ namespace func
 #endif
 			pclose(sandbox);
 			ret["status"] = _I_(new v_str(
-						u_stat == RS_AC ? "accept" :
+						u_stat == RS_AC ? "accepted" :
 						u_stat == RS_MLE ? "memory limit exceed" :
 						u_stat == RS_OLE ? "output limit exceed" :
 						u_stat == RS_TLE ? "time limit exceed" :
-						u_stat == RS_RE ? "run time error" :
+						u_stat == RS_RE ? "runtime error" :
 						u_stat == RS_JGF ? "internal error" :
 						u_stat == RS_DGS ? "dangerous syscall" :
-						"unknown error"
+						"internal error"
 						));
 			ret["time"] = _I_(new v_int(u_time));
 			ret["memory"] = _I_(new v_int(u_mem));
 			ret["exitcode"] = _I_(new v_int(u_ret));
-			for (const auto &x : toVector(cases))
-			{
-				if (src && _v_filemode[_I_(new v_int(2))][src])
+			if (src && _v_filemode[_I_(new v_int(2))][src])
+				for (const auto &x : toVector(cases))
 				{
 					_v_result[x][_I_(new v_str("time"))][_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("source"))]]=ret["time"];
 					_v_result[x][_I_(new v_str("memory"))][_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("source"))]]=ret["memory"];
 				}
-				if (u_stat)
+			if (u_stat)
+			{
+				for (const auto &x : toVector(cases))
 				{
 					if (src && _v_filemode[_I_(new v_int(2))][src])
 						_v_result[x][_I_(new v_str("status"))]=ret["status"];
 					else
 						_v_result[x][_I_(new v_str("status"))]=_I_(new v_str("spj error"));
 					_v_result[x][_I_(new v_str("score"))]=_I_(new v_int(0));
-					throw user_error();
 				}
+				throw user_error();
+			}
+			if (u_ret)
+			{
+				for (const auto &x : toVector(cases))
+				{
+					if (src && _v_filemode[_I_(new v_int(2))][src])
+						_v_result[x][_I_(new v_str("status"))]=_I_(new v_str("runtime error"));
+					_v_result[x][_I_(new v_str("score"))]=_I_(new v_int(0));
+				}
+				throw user_error();
 			}
 			return _I_(new v_dict(ret));
 		}
