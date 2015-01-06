@@ -231,7 +231,8 @@ namespace func
 		try
 		{
 			std::map<std::string,iter> ret;
-			std::string COMM, IN, OUT, ERR, TL, ML, SL;
+			std::string COMM, IN, OUT, ERR, TL, ML, SL, RB, WB, OTHER;
+			iter src=_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("source"))];
 			COMM = file->as_str()+" "+param->as_str();
 			IN = in->as_str();
 			OUT = out->as_str();
@@ -242,14 +243,35 @@ namespace func
 				SL = _v_filemode[_I_(new v_int(4))][file][_I_(new v_str("stack"))][toVector(cases)[0]]->as_str();
 			else
 				SL = "8192";
+			for (auto &x : _v_filemode[_I_(new v_int(0))]->as_dict())
+				for (const auto &y : toVector(x.second[_I_(new v_str("by"))]))
+					if (y == src)
+					{
+						RB += " --add-readable="+x.first;
+						break;
+					}
+			for (auto &x : _v_filemode[_I_(new v_int(1))]->as_dict())
+				for (const auto &y : toVector(x.second[_I_(new v_str("by"))]))
+					if (y == src)
+					{
+						WB += " --add-writable="+x.first;
+						system(("touch "+x.first).c_str());
+						break;
+					}
+			if (!src || !_v_filemode[_I_(new v_int(2))][src])
+				OTHER = " --unsafe ";
 			//COMM="./"+COMM;
 			while (COMM.back()==' ') COMM.pop_back();
 			int u_stat, u_time, u_mem, u_ret;
+			std::string sbcmd = "uoj_run -T "+TL+" -M "+ML+" -S "+SL+" -i "+IN+" -o "+OUT+" -e "+ERR+RB+WB+OTHER+" "+COMM;
 #ifdef DEBUG
-			std::clog << "uoj_run -T "+TL+" -M "+ML+" -S "+SL+" -i "+IN+" -o "+OUT+" -e "+ERR+" "+COMM << std::endl;
+			std::clog << sbcmd << std::endl;
 #endif
-			FILE *sandbox = popen(("uoj_run -T "+TL+" -M "+ML+" -S "+SL+" -i "+IN+" -o "+OUT+" -e "+ERR+" "+COMM).c_str(),"r");
+			FILE *sandbox = popen(sbcmd.c_str(),"r");
 			fscanf(sandbox,"%d%d%d%d",&u_stat,&u_time,&u_mem,&u_ret);
+#ifdef DEBUG
+			std::clog << u_stat << ' ' << u_time << ' ' << u_mem << ' ' << u_ret << std::endl;
+#endif
 			pclose(sandbox);
 			ret["status"] = _I_(new v_str(
 						u_stat == RS_AC ? "accept" :
@@ -266,7 +288,6 @@ namespace func
 			ret["exitcode"] = _I_(new v_int(u_ret));
 			for (const auto &x : toVector(cases))
 			{
-				iter src=_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("source"))];
 				if (src && _v_filemode[_I_(new v_int(2))][src])
 				{
 					_v_result[x][_I_(new v_str("time"))][_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("source"))]]=ret["time"];
