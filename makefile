@@ -17,7 +17,7 @@ build/abstractstubserver.h : src/spec.json
 	jsonrpcstub src/spec.json --cpp-server=AbstractStubServer --cpp-server-file=build/abstractstubserver.h
 
 build/yauj_judger : build/decl_part build/init_part build/run_part src/main.cpp src/interpreter.cpp src/function.cpp src/interpreter.h src/function.h src/config.h src/uoj_env.h
-	g++ src/interpreter.cpp src/function.cpp src/main.cpp -o build/yauj_judger -std=c++11 -ljsoncpp -Isrc -Ibuild -g -Wall
+	g++ src/interpreter.cpp src/function.cpp src/main.cpp -o build/yauj_judger -std=c++11 -ljsoncpp -Isrc -Ibuild -g -Wall -DDEBUG
 
 build/decl_part build/init_part build/run_part : build/parser init.src run.src
 	rm -f build/decl_part build/init_part build/run_part
