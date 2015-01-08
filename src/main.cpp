@@ -41,6 +41,7 @@ int main(int argc, char **argv)
 	_v_submission=_I_(new v_dict());
 	_v_result=_I_(new v_list());
 	if (argc==1) return usage(), 1;
+#ifdef __x86_64__
 	if (!strcmp(argv[1],"run"))
 	{
 		if (argc%2) return usage(), 1;
@@ -54,6 +55,7 @@ int main(int argc, char **argv)
 		run();
 		std::cout << _v_result->as_json().toStyledString() << std::endl;
 	} else
+#endif
 	if (!strcmp(argv[1],"loadconf"))
 	{
 		init();
