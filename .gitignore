@@ -10,6 +10,7 @@ build/*
 !build/lex.yy.c
 !build/abstractstubserver.h
 !makefile
+!*.makefile
 !test
 test/run
 *.swp

@@ -3259,9 +3259,11 @@ yypdumpstack (yyGLRStack* yystackp)
 #line 229 "src/parser.y" /* glr.c:2551  */
 
 
+char curFileName[64];
+
 int yyerror(char *s)
 {
-	fprintf(stderr, "parser : line %d: %s\n", yylineno, s);
+	fprintf(stderr, "parser : %s, line %d: %s\n", curFileName, yylineno, s);
 	return 1;
 }
 
@@ -3274,6 +3276,7 @@ int main()
 	int stat;
 	puts("parsing init.src");
 	freopen("init.src","r",stdin);
+	strcpy(curFileName,"Initialization Part");
 	stat = yyparse();
 	if (stat) return stat;
 	fputs(body,init_part);
@@ -3281,6 +3284,7 @@ int main()
 	puts("parsing run.src");
 	yylineno=1;
 	freopen("run.src","r",stdin);
+	strcpy(curFileName,"Run Part");
 	stat = yyparse();
 	if (stat) return stat;
 	fputs(body,run_part);

@@ -32,7 +32,7 @@ void run()
 #include "run_part"
 	}
 	catch (user_error) {}
-	catch (std::runtime_error &e) { throw std::runtime_error(std::string("init : ")+e.what()); }
+	catch (std::runtime_error &e) { throw std::runtime_error(std::string("run : ")+e.what()); }
 }
 
 int main(int argc, char **argv)

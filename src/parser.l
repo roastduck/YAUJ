@@ -4,6 +4,8 @@
 #include "mystr.h"
 #include "parser.tab.h"
 
+extern char curFileName[64];
+
 %}
 
 %option nodefault
@@ -90,7 +92,7 @@ Z       [zZ]
 [0-9]*\.[0-9]+					{ cn3(&yylval,yytext,yyleng); return(FLOAT); }
 "//".*?\n						;
 [\t\r\f\n ]+					;
-.							fprintf(stderr, "lexer : unexpected character '%c' at line %d\n", yytext[0], yylineno);
+.							fprintf(stderr, "lexer : unexpected character '%c' in %s, at line %d\n", yytext[0],curFileName, yylineno);
 
 %%
 
