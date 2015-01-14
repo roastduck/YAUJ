@@ -1,6 +1,8 @@
 #include <cstring>
 #include <vector>
 #include <iostream>
+#include <exception>
+#include <stdexcept>
 #include "interpreter.h"
 #include "function.h"
 

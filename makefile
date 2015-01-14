@@ -8,13 +8,13 @@ SOURCE_PATH = \"/home/judge/newdata/yauj/code\"
 all : build/daemon build/parser
 
 build/daemon : src/daemon.cpp build/abstractstubserver.h src/config_daemon.h
-	g++ src/daemon.cpp -o build/daemon -ljsoncpp -lmicrohttpd -ljsonrpccpp-common -ljsonrpccpp-server -Isrc -Ibuild -DLISTEN_PORT=$(LISTEN_PORT) -DDATA_PATH=$(DATA_PATH) -DRUN_PATH=$(RUN_PATH) -DSOURCE_PATH=$(SOURCE_PATH)
+	g++ src/daemon.cpp -o build/daemon -pthread -ljsoncpp -lmicrohttpd -ljsonrpccpp-common -ljsonrpccpp-server -Isrc -Ibuild -DLISTEN_PORT=$(LISTEN_PORT) -DDATA_PATH=$(DATA_PATH) -DRUN_PATH=$(RUN_PATH) -DSOURCE_PATH=$(SOURCE_PATH) -O2 -DDEBUG
 
 build/abstractstubserver.h : src/spec.json
 	jsonrpcstub src/spec.json --cpp-server=AbstractStubServer --cpp-server-file=build/abstractstubserver.h
 
 build/parser : build/lex.yy.c build/parser.tab.c src/mystr.c build/parser.tab.h src/mystr.h
-	gcc build/lex.yy.c build/parser.tab.c src/mystr.c -o build/parser -Isrc -Ibuild
+	gcc build/lex.yy.c build/parser.tab.c src/mystr.c -o build/parser -Isrc -Ibuild -O2
 
 build/lex.yy.c : src/parser.l
 	flex -o build/lex.yy.c src/parser.l

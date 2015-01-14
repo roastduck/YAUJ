@@ -1,15 +1,22 @@
+#include <ctime>
 #include <cstdio>
 #include <cstdlib>
+#include <set>
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <pthread.h>
 #include <jsonrpccpp/server/connectors/httpserver.h>
 #include "abstractstubserver.h"
 #include "config_daemon.h"
 
 using namespace jsonrpc;
 
-Json::Reader reader;
+int runningCnt, totCnt, preserveCnt;
+std::set<int> syncing;
+std::multiset<int> boardingPass;
+
+pthread_mutex_t cntLock = PTHREAD_MUTEX_INITIALIZER, syncLock = PTHREAD_MUTEX_INITIALIZER;
 
 Json::Value dumpCmd(const std::string &cmd)
 {
@@ -33,6 +40,7 @@ Json::Value dumpCmd(const std::string &cmd)
 		throw err;
 	}
 	Json::Value ret;
+	Json::Reader reader;
 	if (!reader.parse(buff,ret)) throw std::string("[ERROR] return value is not JSON format");
 	delete buff;
 	return ret;
@@ -40,36 +48,53 @@ Json::Value dumpCmd(const std::string &cmd)
 
 class Server : public AbstractStubServer
 {
-	int runningCnt, totCnt;
-	std::string dataPath, runPath, sourcePath;
+	const std::string dataPath, runPath, sourcePath;
 	
 	public :
 		Server(AbstractServerConnector &connector, serverVersion_t type, char *_dataPath, char *_runPath, char *_sourcePath)
-			: runningCnt(0), totCnt(0), dataPath(_dataPath), runPath(_runPath), sourcePath(_sourcePath), AbstractStubServer(connector,type) {}
+			: dataPath(_dataPath), runPath(_runPath), sourcePath(_sourcePath), AbstractStubServer(connector,type) {}
 		
-		virtual Json::Value run(int pid, int sid, const Json::Value &submission)
+		virtual Json::Value run(int key, int pid, int sid, const Json::Value &submission)
 		{
+#ifdef DEBUG
+			std::clog << "run" << std::endl;
+			std::clog << " pid=" << pid << " sid=" << sid << " key=" << key << std::endl;
+#endif
+			pthread_mutex_lock(&cntLock);
+			if (!boardingPass.count(key))
+			{
+				pthread_mutex_unlock(&cntLock);
+				Json::Value ret;
+				ret["error"] = "not preserved";
+				return ret;
+			}
+			boardingPass.erase(boardingPass.find(key));
 			runningCnt++, totCnt++;
+			const int _totCnt_ = totCnt;
+			pthread_mutex_unlock(&cntLock);
 			Json::Value ret;
+			std::ostringstream ss, ss2;
+			char cwd[WD_BUFF_MAX];
+			getcwd(cwd,WD_BUFF_MAX);
+			ss << runPath << "/" << _totCnt_;
+#ifdef DEBUG
+			std::clog << ("mkdir -p "+ss.str()) << std::endl;
+#endif
+			system(("mkdir -p "+ss.str()).c_str());
+#ifdef DEBUG
+			std::clog << "chdir to " << ss.str() << std::endl;
+#endif
+			chdir(ss.str().c_str());
 			try
 			{
-				std::ostringstream ss, ss2;
-				char cwd[WD_BUFF_MAX];
-				getcwd(cwd,WD_BUFF_MAX);
-				ss << runPath << "/" << totCnt;
-#ifdef DEBUG
-				std::clog << ("mkdir -p "+ss.str()) << std::endl;
-#endif
-				system(("mkdir -p "+ss.str()).c_str());
-#ifdef DEBUG
-				std::clog << "chdir to " << ss.str() << std::endl;
-#endif
-				chdir(ss.str().c_str());
 				ss.str("");
 				ss << "cp " + dataPath + "/" << pid << "/* .";
 #ifdef DEBUG
 				std::clog << ss.str() << std::endl;
 #endif
+				pthread_mutex_lock(&syncLock);
+				if (syncing.count(pid)) throw pthread_mutex_unlock(&syncLock), std::string("data updated when copying files.");
+				pthread_mutex_unlock(&syncLock);
 				system(ss.str().c_str());
 				ss.str("");
 				ss << "./yauj_judge run";
@@ -87,16 +112,21 @@ class Server : public AbstractStubServer
 				chdir(cwd);
 #ifndef DEBUG
 				ss.str("");
-				ss << "rm -r " << runPath << "/" << totCnt;
+				ss << "rm -r " << runPath << "/" << _totCnt_;
 				system(ss.str().c_str());
 #endif
 			} catch (std::string &e)
 			{
+				chdir(cwd);
+				pthread_mutex_lock(&cntLock);
 				runningCnt--;
+				pthread_mutex_unlock(&cntLock);
 				ret["error"] = e;
 				return ret;
 			}
-			runningCnt--;
+			pthread_mutex_lock(&cntLock);
+			runningCnt--, preserveCnt--;
+			pthread_mutex_unlock(&cntLock);
 			return ret;
 		}
 		
@@ -120,7 +150,70 @@ class Server : public AbstractStubServer
 			Json::Value ret;
 			ret["runningCnt"]=runningCnt;
 			ret["totCnt"]=totCnt;
+			ret["preserveCnt"]=preserveCnt;
 			return ret;
+		}
+
+		virtual int preserve(int sid)
+		{
+#ifdef DEBUG
+			std::clog << "preserve" << std::endl;
+#endif
+			// MAKE SURE YOU DON'T REJUDGE A RUNNING SUBMISSION.
+			int ret;
+			if (preserveCnt >= MAX_RUN) return -1;
+			pthread_mutex_lock(&cntLock);
+			preserveCnt++;
+			ret = rand();
+			boardingPass.insert(ret);
+			pthread_mutex_unlock(&cntLock);
+			std::ostringstream s;
+			s << "rsync -e 'ssh -c arcfour' -crz --del "WEB_SERVER":" << sourcePath << '/' << sid << ' ' << sourcePath;
+			system(s.str().c_str());
+			return ret;
+		}
+	
+		virtual bool cancel(int key)
+		{
+#ifdef DEBUG
+			std::clog << "cancel" << std::endl;
+#endif
+			bool ret = false;
+			pthread_mutex_lock(&cntLock);
+			if (boardingPass.count(key))
+				ret = true, boardingPass.erase(boardingPass.find(key));
+			preserveCnt--;
+			pthread_mutex_unlock(&cntLock);
+			return ret;
+		}
+		
+		virtual std::string sync(int pid)
+		{
+#ifdef DEBUG
+			std::clog << "sync" << std::endl;
+#endif
+			pthread_mutex_lock(&syncLock);
+			if (syncing.count(pid)) return pthread_mutex_unlock(&syncLock), "syncing";
+			syncing.insert(pid);
+			pthread_mutex_unlock(&syncLock);
+			char cwd[WD_BUFF_MAX];
+			getcwd(cwd,WD_BUFF_MAX);
+			system(("mkdir -p "+dataPath).c_str());
+			chdir(dataPath.c_str());
+			std::ostringstream s;
+			s << "rsync -e 'ssh -c arcfour' -crz --del "WEB_SERVER":" << dataPath << '/' << pid << " . >/dev/null";
+			int ret = system(s.str().c_str());
+			if (ret)
+				return chdir(cwd), pthread_mutex_lock(&syncLock), syncing.erase(pid), pthread_mutex_unlock(&syncLock), "failed";
+			s.str("");
+			s << pid;
+			chdir(s.str().c_str());
+			ret = system("make -f /home/judge/resource/makefile >/dev/null 2>&1");
+			if (ret)
+				return chdir(cwd), pthread_mutex_lock(&syncLock), syncing.erase(pid), pthread_mutex_unlock(&syncLock), "failed";
+			pthread_mutex_lock(&syncLock), syncing.erase(pid), pthread_mutex_unlock(&syncLock);
+			chdir(cwd);
+			return "success";
 		}
 };
 
@@ -129,10 +222,7 @@ char dataPath[][256] = { DATA_PATH , "" }, runPath[][256] = { RUN_PATH , "" }, s
 
 int main()
 {
-	/*HttpServer httpserver(LISTEN_PORT);
-	Server server(httpserver, JSONRPC_SERVER_V1V2);
-	server.StartListening();
-	std::clog << "Started Listening" << std::endl;*/
+	srand(time(0));
 	for (int i=0; ports[i]; i++)
 	{
 		(new Server(*(new HttpServer(ports[i])),JSONRPC_SERVER_V1V2,dataPath[i],runPath[i],sourcePath[i]))->StartListening();

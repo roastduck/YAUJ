@@ -3,6 +3,7 @@
 		"name": "run",
 		"params":
 		{
+			"key": 0,
 			"pid": 0,
 			"sid": 0,
 			"submission": []
@@ -20,5 +21,29 @@
 	{
 		"name": "judgeStatus",
 		"returns": {}
+	},
+	{
+		"name": "preserve",
+		"params":
+		{
+			"sid": 0
+		},
+		"returns": 0
+	},
+	{
+		"name": "cancel",
+		"params":
+		{
+			"key": 0
+		},
+		"returns": true
+	},
+	{
+		"name": "sync",
+		"params":
+		{
+			"pid": 0
+		},
+		"returns": "status"
 	}
 ]

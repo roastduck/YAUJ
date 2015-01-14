@@ -151,10 +151,11 @@ namespace func
 		{
 			if (x->to() & LIST)
 				return _I_(new v_int(x->as_list().size()));
-			else if (x->to() & DICT)
+			if (x->to() & DICT)
 				return _I_(new v_int(x->as_dict().size()));
-			else
-				throw std::runtime_error("this type has no length");
+			if (x->to() & STR)
+				return _I_(new v_int(x->as_str().size()));
+			throw std::runtime_error("this type has no length");
 		}
 		FUNC_END(len);
 	}
