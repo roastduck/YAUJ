@@ -21,8 +21,7 @@
 
 static void mode1filter(char *s)
 {
-	char *t;
-	for (char *i=s; ; i++)
+	/*for (char *i=s; ; i++)
 	{
 		if (*i=='\n')
 			for (char *j=i-1; j>=s && (*j==' ' || *j=='\r'); j--) *j=0;
@@ -32,11 +31,18 @@ static void mode1filter(char *s)
 			t=i;
 			break;
 		}
-	}
+	}*/
+	char *t = s+strlen(s), *i = t-1;
+	while (i>=s)
+		if (*i=='\n')
+			for (i--; i>=s && (*i==' ' || *i == '\r'); i--) *i = 0;
+		else
+			i--;
 	char *j=s;
 	for (char *i=s; i<t; i++) if (*i)
 		*(j++) = *i;
 	*j=0;
+	for (j--; j>=s && *j=='\n'; j--) *j=0;
 }
 
 static void mode2filter(char *s)
@@ -64,17 +70,14 @@ static int nextWord(char *&p1, char *&p2, char *&q1, char *&q2)
 	return 0;
 }
 
-static std::pair<bool,double> getFloat(char *st, char *en)
+static double getFloat(char *st, char *en)
 {
 	int dot(0);
 	for (char *i=st; i<en; i++)
-		if (*i=='.')
-			dot++;
-		else if (!isdigit(*i))
-			return std::make_pair(false,0.0);
-	double ret(0);
-	sscanf(st,"%lf",&ret);
-	return std::make_pair(true,ret);
+		if (!isdigit(*i))
+			if (*i!='.' || ++dot>1)
+				return nan("");
+	return atof(st);
 }
 
 static std::vector<iter> toVector(const iter &src)
@@ -247,7 +250,7 @@ namespace func
 	}
 	
 	// execute
-
+	
 	iter exec(const iter &cases, const iter &file, const iter &in, const iter &out, const iter &err, const iter &param)
 	{
 		try
@@ -271,21 +274,23 @@ namespace func
 				SL = _v_filemode[_I_(new v_int(4))][file][_I_(new v_str("stack"))][toVector(cases)[0]]->as_str();
 			else
 				SL = "8192";
-			for (auto &x : _v_filemode[_I_(new v_int(0))]->as_dict())
-				for (const auto &y : toVector(x.second[_I_(new v_str("by"))]))
-					if (y == src)
-					{
-						RB += " --add-readable="+x.first;
-						break;
-					}
-			for (auto &x : _v_filemode[_I_(new v_int(1))]->as_dict())
-				for (const auto &y : toVector(x.second[_I_(new v_str("by"))]))
-					if (y == src)
-					{
-						WB += " --add-writable="+x.first;
-						system(("touch "+x.first).c_str());
-						break;
-					}
+			if (_v_filemode[_I_(new v_int(0))])
+				for (auto &x : _v_filemode[_I_(new v_int(0))]->as_dict())
+					for (const auto &y : toVector(x.second[_I_(new v_str("by"))]))
+						if (y == src)
+						{
+							RB += " --add-readable="+x.first;
+							break;
+						}
+			if (_v_filemode[_I_(new v_int(1))])
+				for (auto &x : _v_filemode[_I_(new v_int(1))]->as_dict())
+					for (const auto &y : toVector(x.second[_I_(new v_str("by"))]))
+						if (y == src)
+						{
+							WB += " --add-writable="+x.first;
+							system(("touch "+x.first).c_str());
+							break;
+						}
 			if (!src || !_v_filemode[_I_(new v_int(2))][src])
 				OTHER = " --unsafe ";
 			//COMM="./"+COMM;
@@ -361,6 +366,7 @@ namespace func
 			_TAR = target->as_str();
 			_O2 = O2->as_bool();
 			for (const iter &x: toVector(define)) _DEF.push_back(x->as_str());
+			_DEF.push_back("ONLINE_JUDGE");
 			std::string cmd;
 			if (_LANG == "c++")
 			{
@@ -450,6 +456,9 @@ namespace func
 				throw fclose(f1_ptr), fclose(f2_ptr), std::runtime_error("DIFF_FILE_BUFF_MAX exceeded");
 			fclose(f1_ptr);
 			fclose(f2_ptr);
+#ifdef DEBUG
+			std::clog << "diff : have read files" << std::endl;
+#endif
 			if (W_MODE == 1)
 				mode1filter(buff1), mode1filter(buff2);
 			if (W_MODE == 2)
@@ -472,22 +481,16 @@ namespace func
 				if (p1-q1!=p2-q2 || memcmp(q1,q2,p1-q1))
 				{
 					r_verdict = true;
-					r_max_abs_diff = r_max_rel_diff = INFINITY;
-					r_first_diff=std::make_pair(std::string(q1,p1),std::string(q2,p2));
+					if (r_first_diff.first.empty() && r_first_diff.second.empty())
+						r_first_diff=std::make_pair(std::string(q1,p1),std::string(q2,p2));
 				}
-				std::pair<bool,double> res1, res2;
-				res1 = getFloat(q1,p1);
-				res2 = getFloat(q2,p2);
-				if (res1.first != res2.first)
-				{
-					r_verdict = true;
+				double res1 = getFloat(q1,p1), res2 = getFloat(q2,p2);
+				if (isnan(res1) || isnan(res2))
 					r_max_abs_diff = r_max_rel_diff = INFINITY;
-					break;
-				}
-				if (res1.first)
+				else
 				{
-					r_max_abs_diff = std::max(std::abs(res1.second-res2.second),r_max_abs_diff);
-					r_max_rel_diff = std::max(std::abs(res1.second-res2.second)/res2.second,r_max_rel_diff);
+					r_max_abs_diff = std::max(std::abs(res1-res2),r_max_abs_diff);
+					r_max_rel_diff = std::max(std::abs(res1-res2)/res2,r_max_rel_diff);
 				}
 			}
 			iter ret = _I_(new v_dict());

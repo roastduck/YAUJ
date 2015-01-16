@@ -48,8 +48,8 @@ class v_int : public v_base
 {
 	int data;
 	public :
-		v_int(int x);
-		int to() const;
+		inline v_int(int x) : data(x) {}
+		inline int to() const { return INT | FLOAT | BOOL | STR; }
 		int as_int() const;
 		double as_float() const;
 		bool as_bool() const;
@@ -62,8 +62,8 @@ class v_float : public v_base
 {
 	double data;
 	public :
-		v_float(double x);
-		int to() const;
+		inline v_float(double x) : data(x) {}
+		inline int to() const { return FLOAT | BOOL | STR; }
 		double as_float() const;
 		bool as_bool() const;
 		Json::Value as_json() const;
@@ -75,8 +75,8 @@ class v_bool : public v_base
 {
 	bool data;
 	public :
-		v_bool(bool x);
-		int to() const;
+		inline v_bool(bool x) : data(x) {}
+		inline int to() const { return INT | FLOAT | BOOL; }
 		int as_int() const;
 		double as_float() const;
 		bool as_bool() const;
@@ -88,8 +88,9 @@ class v_str : public v_base
 {
 	std::string data;
 	public :
-		v_str(std::string x);
-		int to() const;
+		inline v_str(const std::string &x) : data(x) {}
+		inline v_str(std::string &&x) : data(std::move(x)) {}
+		inline int to() const { return BOOL | STR; }
 		bool as_bool() const;
 		Json::Value as_json() const;
 		std::string as_str() const;
@@ -100,9 +101,10 @@ class v_list : public v_base
 {
 	std::vector<iter> data;
 	public :
-		v_list();
-		v_list(const std::vector<iter> &x);
-		int to() const;
+		inline v_list() : data() {}
+		inline v_list(const std::vector<iter> &x) : data(x) {}
+		inline v_list(std::vector<iter> &&x) : data(std::move(x)) {}
+		inline int to() const { return BOOL | LIST; }
 		bool as_bool() const;
 		Json::Value as_json() const;
 		std::vector<iter> &as_list();
@@ -113,9 +115,10 @@ class v_dict : public v_base
 {
 	std::map<std::string,iter> data;
 	public :
-		v_dict();
-		v_dict(const std::map<std::string,iter> &x);
-		int to() const;
+		inline v_dict() : data() {}
+		inline v_dict(const std::map<std::string,iter> &x) : data(x) {}
+		inline v_dict(std::map<std::string,iter> &&x) : data(std::move(x)) {}
+		inline int to() const { return BOOL | DICT; }
 		bool as_bool() const;
 		Json::Value as_json() const;
 		std::map<std::string,iter> &as_dict();
@@ -126,9 +129,11 @@ class iter
 {
 	public :
 		v_base_ptr ptr;
-		iter();
-		iter(v_base_ptr x);
-		iter(const iter &x);
+		inline iter() : ptr(0) {}
+		inline iter(v_base_ptr x) : ptr(x) {}
+		inline iter(const iter &x) : ptr(x.ptr) {}
+		inline iter(iter &&x) : ptr(std::move(x.ptr)) {}
+		inline iter &operator=(iter &&x) { ptr = std::move(x.ptr); }
 		iter &operator=(const iter &x);
 		v_base &operator*() const;
 		v_base_ptr operator->() const;
@@ -154,8 +159,8 @@ iter operator<=(const iter &a, const iter &b);
 iter operator>=(const iter &a, const iter &b);
 iter operator==(const iter &a, const iter &b);
 iter operator!=(const iter &a, const iter &b);
-iter operator&&(const iter &a, const iter &b);
-iter operator||(const iter &a, const iter &b);
+//iter operator&&(const iter &a, const iter &b);
+//iter operator||(const iter &a, const iter &b);
 
 iter FEQ(const iter &a, const iter &b);
 iter NFEQ(const iter &a, const iter &b);

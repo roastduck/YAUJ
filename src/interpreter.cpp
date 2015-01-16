@@ -44,11 +44,6 @@ v_base_ptr v_base::clone() const
 }
 
 // CLASS v_int
-v_int::v_int(int x) : data(x) {}
-int v_int::to() const
-{
-	return INT | FLOAT | BOOL | STR;
-}
 int v_int::as_int() const
 {
 	return data;
@@ -77,11 +72,6 @@ v_base_ptr v_int::clone() const
 }
 
 // CLASS v_float
-v_float::v_float(double x) : data(x) {}
-int v_float::to() const
-{
-	return FLOAT | BOOL | STR;
-}
 double v_float::as_float() const
 {
 	return data;
@@ -106,11 +96,6 @@ v_base_ptr v_float::clone() const
 }
 
 // CLASS v_bool
-v_bool::v_bool(bool x) : data(x) {}
-int v_bool::to() const
-{
-	return INT | FLOAT | BOOL;
-}
 int v_bool::as_int() const
 {
 	return data;
@@ -133,11 +118,6 @@ v_base_ptr v_bool::clone() const
 }
 
 // CLASS v_str
-v_str::v_str(std::string x) : data(x) {}
-int v_str::to() const
-{
-	return BOOL | STR;
-}
 bool v_str::as_bool() const
 {
 	return ! data.empty();
@@ -156,12 +136,6 @@ v_base_ptr v_str::clone() const
 }
 
 // CLASS v_list
-v_list::v_list() : data() {}
-v_list::v_list(const std::vector<iter> &x) : data(x) {}
-int v_list::to() const
-{
-	return BOOL | LIST;
-}
 bool v_list::as_bool() const
 {
 	return ! data.empty();
@@ -183,12 +157,6 @@ v_base_ptr v_list::clone() const
 }
 
 // CLASS v_dict
-v_dict::v_dict() : data() {}
-v_dict::v_dict(const std::map<std::string,iter> &x) : data(x) {}
-int v_dict::to() const
-{
-	return BOOL | DICT;
-}
 bool v_dict::as_bool() const
 {
 	return ! data.empty();
@@ -210,9 +178,6 @@ v_base_ptr v_dict::clone() const
 }
 
 // CLASS iter
-iter::iter() : ptr(0) {}
-iter::iter(v_base_ptr x) : ptr(x) {}
-iter::iter(const iter &x) : ptr(x.ptr) {}
 
 iter &iter::operator=(const iter &x)
 {
@@ -451,24 +416,20 @@ iter operator!=(const iter &a, const iter &b)
 	return ! (a==b);
 }
 
-iter operator&&(const iter &a, const iter &b)
+/*iter operator&&(const iter &a, const iter &b)
 {
-	if ((a->to() & BOOL) && (b->to() & BOOL))
-		return _I_(new v_bool(a->as_bool() && b->as_bool()));
-	throw std::runtime_error("no matched operator AND");
+	return _I_(new v_bool((bool)a && (bool)b));
 }
 
 iter operator||(const iter &a, const iter &b)
 {
-	if ((a->to() & BOOL) && (b->to() & BOOL))
-		return _I_(new v_bool(a->as_bool() || b->as_bool()));
-	throw std::runtime_error("no matched operator OR");
-}
+	return _I_(new v_bool((bool)a || (bool)b));
+}*/
 
 // OUTSIDE FUNCTIONS
 iter FEQ(const iter &a, const iter &b)
 {
-	return _I_(new v_bool(typeid(*a) == typeid(*b))) && a == b;
+	return _I_(new v_bool(typeid(*a) == typeid(*b) && a == b));
 }
 
 iter NFEQ(const iter &a, const iter &b)

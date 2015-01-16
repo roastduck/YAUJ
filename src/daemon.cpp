@@ -73,7 +73,7 @@ class Server : public AbstractStubServer
 			const int _totCnt_ = totCnt;
 			pthread_mutex_unlock(&cntLock);
 			Json::Value ret;
-			std::ostringstream ss, ss2;
+			std::ostringstream ss;
 			char cwd[WD_BUFF_MAX];
 			getcwd(cwd,WD_BUFF_MAX);
 			ss << runPath << "/" << _totCnt_;
@@ -85,6 +85,10 @@ class Server : public AbstractStubServer
 			std::clog << "chdir to " << ss.str() << std::endl;
 #endif
 			chdir(ss.str().c_str());
+#ifdef DEBUG
+			std::clog << "rm -r *" << std::endl;
+#endif
+			system("rm -r *");
 			try
 			{
 				ss.str("");
@@ -97,17 +101,15 @@ class Server : public AbstractStubServer
 				pthread_mutex_unlock(&syncLock);
 				system(ss.str().c_str());
 				ss.str("");
-				ss << "./yauj_judge run";
-				ss2 << "cp " + sourcePath + "/" << sid << '/';
-				for (Json::ValueIterator i=submission.begin(); i!=submission.end(); i++)
-				{
-					ss << " " << (*i)["language"].asString() << " " << (*i)["source"].asString();
-					ss2 << (*i)["source"].asString() << ' ';
-				}
+				ss << "cp " + sourcePath + "/" << sid << "/* .";
 #ifdef DEBUG
-				std::clog << ss2.str()+"." << std::endl;
+				std::clog << ss.str() << std::endl;
 #endif
-				system((ss2.str()+".").c_str());
+				system((ss.str()).c_str());
+				ss.str("");
+				ss << "./yauj_judge run";
+				for (Json::ValueIterator i=submission.begin(); i!=submission.end(); i++)
+					ss << " " << (*i)["language"].asString() << " " << (*i)["source"].asString();
 				ret=dumpCmd(ss.str());
 				chdir(cwd);
 #ifndef DEBUG
@@ -151,6 +153,11 @@ class Server : public AbstractStubServer
 			ret["runningCnt"]=runningCnt;
 			ret["totCnt"]=totCnt;
 			ret["preserveCnt"]=preserveCnt;
+			ret["boardingPass"]=Json::Value();
+			pthread_mutex_lock(&cntLock);
+			for (std::multiset<int>::iterator i=boardingPass.begin(); i!=boardingPass.end(); i++)
+				ret["boardingPass"].append(*i);
+			pthread_mutex_unlock(&cntLock);
 			return ret;
 		}
 
@@ -168,7 +175,7 @@ class Server : public AbstractStubServer
 			boardingPass.insert(ret);
 			pthread_mutex_unlock(&cntLock);
 			std::ostringstream s;
-			s << "rsync -e 'ssh -c arcfour' -crz --del "WEB_SERVER":" << sourcePath << '/' << sid << ' ' << sourcePath;
+			s << "rsync -e 'ssh -c arcfour' -rz -W --del "WEB_SERVER":" << sourcePath << '/' << sid << ' ' << sourcePath;
 			system(s.str().c_str());
 			return ret;
 		}
@@ -208,7 +215,7 @@ class Server : public AbstractStubServer
 			s.str("");
 			s << pid;
 			chdir(s.str().c_str());
-			ret = system("make -f /home/judge/resource/makefile >/dev/null 2>&1");
+			ret = system("make >/dev/null 2>&1");
 			if (ret)
 				return chdir(cwd), pthread_mutex_lock(&syncLock), syncing.erase(pid), pthread_mutex_unlock(&syncLock), "failed";
 			pthread_mutex_lock(&syncLock), syncing.erase(pid), pthread_mutex_unlock(&syncLock);

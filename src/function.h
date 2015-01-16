@@ -85,7 +85,7 @@ namespace func
 	 *	@3 source : str or list of str. path to source.
 	 *	@4 target : str. path to binary target.
 	 *	@5 O2 : bool. whether to compile with "O2"
-	 *	@6 define : list of str. macros passed to compiler.
+	 *	@6 define : list of str. macros passed to compiler. ONLINE_JUDGE is always defined.
 	 *	@return : dict
 	 *		["exitcode"] : int. exit code
 	 *		["message"] : str. compiling message.
