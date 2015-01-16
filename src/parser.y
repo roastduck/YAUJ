@@ -4,6 +4,7 @@
 #include "mystr.h"
 
 extern int yylineno;
+char curFileName[64];
 
 typedef struct _NODE
 {
@@ -113,7 +114,12 @@ block :
 ;	
 
 stmt :
-	expr ';'				{ char s[32]; sprintf(s,";}LINE_CAT(\"%d\")\n",yylineno); cat("+-+",&$$,"try{",$1,s); }
+	expr ';'				{
+							char s[32], t[32];
+							sprintf(s,";}LINE_CAT(\"%d\")\n",yylineno);
+							sprintf(t,"#line %d \"%s\" try{",yylineno,curFileName);
+							cat("+-+",&$$,t,$1,s);
+						}
 |	BREAK ';'				{ cat("-+",&$$,$1,";\n"); }
 |	CONTINUE ';'			{ cat("-+",&$$,$1,";\n"); }
 |	if	
@@ -228,7 +234,6 @@ nonemp_params :
 
 %%
 
-char curFileName[64];
 
 int yyerror(char *s)
 {
