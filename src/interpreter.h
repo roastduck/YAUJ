@@ -139,6 +139,7 @@ class iter
 		v_base_ptr operator->() const;
 		operator bool() const;
 		iter operator!() const;
+		iter operator-() const;
 		iter &operator[](const iter &x);
 		iter &operator++();
 		iter &operator--();
@@ -150,6 +151,8 @@ class iter
 
 iter operator+(const iter &a, const iter &b);
 iter operator-(const iter &a, const iter &b);
+iter &operator+=(iter &a, const iter &b);
+iter &operator-=(iter &a, const iter &b);
 iter operator*(const iter &a, const iter &b);
 iter operator/(const iter &a, const iter &b);
 iter operator%(const iter &a, const iter &b);

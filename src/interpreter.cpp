@@ -210,6 +210,11 @@ iter iter::operator!() const
 	return _I_(new v_bool(! (bool) *this));
 }
 
+iter iter::operator-() const
+{
+	return _I_(new v_int(0))-*this;
+}
+
 iter &iter::operator[](const iter &x)
 {
 	if (! static_cast<bool>(ptr) && (x->to() & INT))

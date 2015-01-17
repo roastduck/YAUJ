@@ -115,9 +115,9 @@ block :
 
 stmt :
 	expr ';'				{
-							char s[32], t[32];
+							char s[128], t[128];
 							sprintf(s,";}LINE_CAT(\"%d\")\n",yylineno);
-							sprintf(t,"#line %d \"%s\" try{",yylineno,curFileName);
+							sprintf(t,"#line %d \"%s\"\ntry{",yylineno,curFileName);
 							cat("+-+",&$$,t,$1,s);
 						}
 |	BREAK ';'				{ cat("-+",&$$,$1,";\n"); }

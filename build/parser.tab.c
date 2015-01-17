@@ -1265,9 +1265,9 @@ yyuserAction (yyRuleNum yyn, size_t yyrhslen, yyGLRStackItem* yyvsp,
   case 19:
 #line 117 "src/parser.y" /* glr.c:783  */
     {
-							char s[32], t[32];
+							char s[128], t[128];
 							sprintf(s,";}LINE_CAT(\"%d\")\n",yylineno);
-							sprintf(t,"#line %d \"%s\" try{",yylineno,curFileName);
+							sprintf(t,"#line %d \"%s\"\ntry{",yylineno,curFileName);
 							cat("+-+",&((*yyvalp)),t,(((yyGLRStackItem const *)yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval),s);
 						}
 #line 1274 "parser.tab.c" /* glr.c:783  */
