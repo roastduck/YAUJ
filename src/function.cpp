@@ -337,12 +337,11 @@ namespace func
 				}
 				throw user_error();
 			}
-			if (u_ret)
+			if (u_ret && src && _v_filemode[_I_(new v_int(2))][src])
 			{
 				for (const auto &x : toVector(cases))
 				{
-					if (src && _v_filemode[_I_(new v_int(2))][src])
-						_v_result[x][_I_(new v_str("status"))]=_I_(new v_str("runtime error"));
+					_v_result[x][_I_(new v_str("status"))]=_I_(new v_str("runtime error"));
 					_v_result[x][_I_(new v_str("score"))]=_I_(new v_int(0));
 				}
 				throw user_error();

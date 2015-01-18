@@ -19,6 +19,6 @@
 #define	PIPE_READ_BUFF_MAX				65536
 #define	WD_BUFF_MAX					256
 
-#define	MAX_RUN						4
+#define	MAX_RUN						2
 
 #define	WEB_SERVER					"root@172.16.0.132"

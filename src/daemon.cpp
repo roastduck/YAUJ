@@ -98,8 +98,8 @@ class Server : public AbstractStubServer
 #endif
 				pthread_mutex_lock(&syncLock);
 				if (syncing.count(pid)) throw pthread_mutex_unlock(&syncLock), std::string("data updated when copying files.");
-				pthread_mutex_unlock(&syncLock);
 				system(ss.str().c_str());
+				pthread_mutex_unlock(&syncLock);
 				ss.str("");
 				ss << "cp " + sourcePath + "/" << sid << "/* .";
 #ifdef DEBUG
