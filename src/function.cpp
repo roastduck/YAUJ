@@ -173,7 +173,7 @@ namespace func
 			if (!p) return _I_(new v_str(""));
 			static char buff[FUNC_READ_BUFF_MAX+1];
 			buff[fread(buff,1,FUNC_READ_BUFF_MAX,p)]=0;
-			if (!feof(p)) throw fclose(p), std::runtime_error("FUNC_READ_BUFF_MAX exceeded");
+			if (!feof(p)) fclose(p), throw std::runtime_error("FUNC_READ_BUFF_MAX exceeded");
 			fclose(p);
 			return _I_(new v_str(buff));
 		}
@@ -452,7 +452,7 @@ namespace func
 			buff1[fread(buff1,1,DIFF_FILE_BUFF_MAX,f1_ptr)]=0;
 			buff2[fread(buff2,1,DIFF_FILE_BUFF_MAX,f2_ptr)]=0;
 			if ((ferror(f1_ptr) || !feof(f1_ptr)) && (ferror(f2_ptr) || !feof(f2_ptr)))
-				throw fclose(f1_ptr), fclose(f2_ptr), std::runtime_error("DIFF_FILE_BUFF_MAX exceeded");
+				fclose(f1_ptr), fclose(f2_ptr), throw std::runtime_error("DIFF_FILE_BUFF_MAX exceeded");
 			fclose(f1_ptr);
 			fclose(f2_ptr);
 #ifdef DEBUG

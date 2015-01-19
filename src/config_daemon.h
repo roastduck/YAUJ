@@ -17,7 +17,6 @@
 #endif
 
 #define	PIPE_READ_BUFF_MAX				65536
-#define	WD_BUFF_MAX					256
 
 #define	MAX_RUN						2
 

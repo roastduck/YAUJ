@@ -5,6 +5,8 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <pthread.h>
 #include <jsonrpccpp/server/connectors/httpserver.h>
 #include "abstractstubserver.h"
@@ -16,34 +18,58 @@ int runningCnt, totCnt, preserveCnt;
 std::set<int> syncing;
 std::multiset<int> boardingPass;
 
-pthread_mutex_t cntLock = PTHREAD_MUTEX_INITIALIZER, syncLock = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t cntLock = PTHREAD_MUTEX_INITIALIZER, syncLock = PTHREAD_MUTEX_INITIALIZER, cmdLock = PTHREAD_MUTEX_INITIALIZER;
 
-Json::Value dumpCmd(const std::string &cmd)
+Json::Value dumpCmd(const std::string &cmd, const std::string &dir)
 {
 #ifdef DEBUG
 	std::clog << cmd << std::endl;
 #endif
-	FILE *res = popen((cmd+" 2>yauj.log").c_str(),"r");
-	char *buff = new char [PIPE_READ_BUFF_MAX+1];
-	buff[fread(buff,1,PIPE_READ_BUFF_MAX,res)]=0;
-	if (!feof(res)) throw std::string("[ERROR] PIPE_READ_BUFF_MAX exceeded");
-	int retcode = pclose(res);
-	if (retcode)
+	pid_t child = fork();
+	if (!child)
 	{
-		FILE *e = fopen("yauj.log","r");
-		char *b = new char [PIPE_READ_BUFF_MAX+1];
-		b[fread(b,1,PIPE_READ_BUFF_MAX,e)]=0;
-		fclose(e);
-		std::string err = b;
+		chdir(dir.c_str());
+		int exitCode = system((cmd+" > yauj.res 2>yauj.log").c_str());
+		if (exitCode)
+		{
+			FILE *e = fopen("yauj.log","r");
+			char *b = new char [PIPE_READ_BUFF_MAX+1];
+			b[fread(b,1,PIPE_READ_BUFF_MAX,e)]=0;
+			fclose(e);
+			Json::Value ret;
+			ret["error"]=b;
+			e = fopen("yauj.res","w");
+			fputs(ret.toStyledString().c_str(),e);
+			fclose(e);
+			delete b;
+		}
+		exit(0);
+	} else
+	{
+		waitpid(child, 0, 0);
+#ifdef DEBUG
+		std::clog << "done" << std::endl;
+#endif
+		FILE *res = fopen((dir+"/yauj.res").c_str(),"r");
+		char *buff = new char [PIPE_READ_BUFF_MAX+1];
+		buff[fread(buff,1,PIPE_READ_BUFF_MAX,res)]=0;
+		if (!feof(res))
+		{
+			fclose(res);
+			delete buff;
+			throw std::string("[ERROR] PIPE_READ_BUFF_MAX exceeded");
+		}
+		fclose(res);
+		Json::Value ret;
+		Json::Reader reader;
+		if (!reader.parse(buff,ret))
+		{
+			delete buff;
+			throw std::string("[ERROR] return value is not JSON format");
+		}
 		delete buff;
-		delete b;
-		throw err;
+		return ret;
 	}
-	Json::Value ret;
-	Json::Reader reader;
-	if (!reader.parse(buff,ret)) throw std::string("[ERROR] return value is not JSON format");
-	delete buff;
-	return ret;
 }
 
 class Server : public AbstractStubServer
@@ -72,56 +98,53 @@ class Server : public AbstractStubServer
 			runningCnt++, totCnt++;
 			const int _totCnt_ = totCnt;
 			pthread_mutex_unlock(&cntLock);
+			
 			Json::Value ret;
 			std::ostringstream ss;
-			char cwd[WD_BUFF_MAX];
-			getcwd(cwd,WD_BUFF_MAX);
 			ss << runPath << "/" << _totCnt_;
+			std::string runDir = ss.str();
+			pthread_mutex_lock(&cmdLock);
 #ifdef DEBUG
-			std::clog << ("mkdir -p "+ss.str()) << std::endl;
+			std::clog << "mkdir -p "+runDir << std::endl;
 #endif
-			system(("mkdir -p "+ss.str()).c_str());
+			system(("mkdir -p "+runDir).c_str());
 #ifdef DEBUG
-			std::clog << "chdir to " << ss.str() << std::endl;
+			std::clog << "rm -r "+runDir+"/*" << std::endl;
 #endif
-			chdir(ss.str().c_str());
-#ifdef DEBUG
-			std::clog << "rm -r *" << std::endl;
-#endif
-			system("rm -r *");
+			system(("rm -r "+runDir+"/*").c_str());
+			pthread_mutex_unlock(&cmdLock);
 			try
 			{
 				ss.str("");
-				ss << "cp " + dataPath + "/" << pid << "/* .";
+				ss << "cp " + dataPath + "/" << pid << "/* " << runDir;
+				pthread_mutex_lock(&syncLock);
+				if (syncing.count(pid)) pthread_mutex_unlock(&syncLock), throw std::string("data updated when copying files.");
 #ifdef DEBUG
 				std::clog << ss.str() << std::endl;
 #endif
-				pthread_mutex_lock(&syncLock);
-				if (syncing.count(pid)) throw pthread_mutex_unlock(&syncLock), std::string("data updated when copying files.");
-				system(ss.str().c_str());
+				pthread_mutex_lock(&cmdLock), system(ss.str().c_str()), pthread_mutex_unlock(&cmdLock);
 				pthread_mutex_unlock(&syncLock);
 				ss.str("");
-				ss << "cp " + sourcePath + "/" << sid/10000 << '/' << sid%10000 << "/* .";
+				ss << "cp " + sourcePath + "/" << sid/10000 << '/' << sid%10000 << "/* " << runDir;
 #ifdef DEBUG
 				std::clog << ss.str() << std::endl;
 #endif
-				system((ss.str()).c_str());
+				pthread_mutex_lock(&cmdLock), system((ss.str()).c_str()), pthread_mutex_unlock(&cmdLock);
 				ss.str("");
 				ss << "./yauj_judge run";
 				for (Json::ValueIterator i=submission.begin(); i!=submission.end(); i++)
 					ss << " " << (*i)["language"].asString() << " " << (*i)["source"].asString();
-				ret=dumpCmd(ss.str());
-				chdir(cwd);
+				ret=dumpCmd(ss.str(),runDir);
 #ifndef DEBUG
-				ss.str("");
-				ss << "rm -r " << runPath << "/" << _totCnt_;
-				system(ss.str().c_str());
+				pthread_mutex_lock(&cmdLock), system(("rm -r "+runDir).c_str()), pthread_mutex_unlock(&cmdLock);
 #endif
 			} catch (std::string &e)
 			{
-				chdir(cwd);
+#ifdef DEBUG
+				std::clog << " run: catched " << e << std::endl;
+#endif
 				pthread_mutex_lock(&cntLock);
-				runningCnt--;
+				runningCnt--, preserveCnt--;
 				pthread_mutex_unlock(&cntLock);
 				ret["error"] = e;
 				return ret;
@@ -132,26 +155,29 @@ class Server : public AbstractStubServer
 			return ret;
 		}
 		
-		virtual Json::Value loadConf(int pid)
+		/*virtual Json::Value loadConf(int pid)
 		{
+			pthread_mutex_lock(&cntLock);
+			const int _totCnt_ = ++totCnt;
+			pthread_mutex_unlock(&cntLock);
+			std::ostringstream ss;
+			ss << runPath << "/" << _totCnt_;
 			try
 			{
-				std::ostringstream ss;
-				ss << dataPath + "/" << pid << "/yauj_judge loadconf";
-				return dumpCmd(ss.str());
+				return dumpCmd("./yauj_judge loadconf",ss.str());
 			} catch (std::string &e)
 			{
 				Json::Value ret;
 				ret["error"] = e;
 				return ret;
 			}
-		}
+		}*/
 		
 		virtual Json::Value judgeStatus()
 		{
 			Json::Value ret;
 			ret["runningCnt"]=runningCnt;
-			ret["totCnt"]=totCnt;
+			ret["totDumpCmdCnt"]=totCnt;
 			ret["preserveCnt"]=preserveCnt;
 			ret["boardingPass"]=Json::Value();
 			pthread_mutex_lock(&cntLock);
@@ -166,20 +192,30 @@ class Server : public AbstractStubServer
 #ifdef DEBUG
 			std::clog << "preserve" << std::endl;
 #endif
-			// MAKE SURE YOU DON'T REJUDGE A RUNNING SUBMISSION.
-			int ret;
 			if (preserveCnt >= MAX_RUN) return -1;
 			pthread_mutex_lock(&cntLock);
 			preserveCnt++;
+			pthread_mutex_unlock(&cntLock);
+			
+			int exitCode;
+			pid_t child = fork();
+			if (!child)
+			{
+				std::ostringstream s;
+				s << "mkdir -p " << sourcePath << '/' << sid/10000;
+				system(s.str().c_str());
+				s.str("");
+				s << "rsync -e 'ssh -c arcfour' -rz -W --del "WEB_SERVER":" << sourcePath << '/' << sid/10000 << '/' << sid%10000 << ' ' << sourcePath << '/' << sid/10000;
+				exit(system(s.str().c_str()));
+			}
+			waitpid(child,&exitCode,0);
+			if (!WIFEXITED(exitCode)||WEXITSTATUS(exitCode)) return -1;
+			
+			int ret;
+			pthread_mutex_lock(&cntLock);
 			ret = rand();
 			boardingPass.insert(ret);
 			pthread_mutex_unlock(&cntLock);
-			std::ostringstream s;
-			s << "mkdir -p " << sourcePath << '/' << sid/10000;
-			system(s.str().c_str());
-			s.str("");
-			s << "rsync -e 'ssh -c arcfour' -rz -W --del "WEB_SERVER":" << sourcePath << '/' << sid/10000 << '/' << sid%10000 << ' ' << sourcePath << '/' << sid/10000;
-			if (system(s.str().c_str())) return -1;
 			return ret;
 		}
 	
@@ -206,24 +242,30 @@ class Server : public AbstractStubServer
 			if (syncing.count(pid)) return pthread_mutex_unlock(&syncLock), "syncing";
 			syncing.insert(pid);
 			pthread_mutex_unlock(&syncLock);
-			char cwd[WD_BUFF_MAX];
-			getcwd(cwd,WD_BUFF_MAX);
-			system(("mkdir -p "+dataPath).c_str());
-			chdir(dataPath.c_str());
-			std::ostringstream s;
-			s << "rsync -e 'ssh -c arcfour' -crz --del "WEB_SERVER":" << dataPath << '/' << pid << " . >/dev/null";
-			int ret = system(s.str().c_str());
-			if (ret)
-				return chdir(cwd), pthread_mutex_lock(&syncLock), syncing.erase(pid), pthread_mutex_unlock(&syncLock), "failed";
-			s.str("");
-			s << pid;
-			chdir(s.str().c_str());
-			ret = system("make >/dev/null 2>&1");
-			if (ret)
-				return chdir(cwd), pthread_mutex_lock(&syncLock), syncing.erase(pid), pthread_mutex_unlock(&syncLock), "failed";
+#ifdef DEBUG
+			std::clog << " sync: unlocked syncLock" << std::endl;
+#endif
+
+			int exitCode;
+			pid_t child = fork();
+			if (!child)
+			{
+				int ret;
+				system(("mkdir -p "+dataPath).c_str());
+				std::ostringstream s;
+				s << "rsync -e 'ssh -c arcfour' -crz --del "WEB_SERVER":" << dataPath << '/' << pid << ' ' << dataPath << ". >/dev/null";
+				if (system(s.str().c_str())) exit(1);
+				s.str("");
+				s << "make -C " << dataPath << '/' << pid << " >/dev/null 2>&1";
+				if (system("make >/dev/null 2>&1")) exit(1);
+				exit(0);
+			}
+			waitpid(child,&exitCode,0);
 			pthread_mutex_lock(&syncLock), syncing.erase(pid), pthread_mutex_unlock(&syncLock);
-			chdir(cwd);
-			return "success";
+#ifdef DEBUG
+			std::clog << " synced" << std::endl;
+#endif
+			return (WIFEXITED(exitCode)&&!WEXITSTATUS(exitCode))?"failed":"success";
 		}
 };
 

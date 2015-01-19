@@ -13,7 +13,6 @@ class AbstractStubServer : public jsonrpc::AbstractServer<AbstractStubServer>
         AbstractStubServer(jsonrpc::AbstractServerConnector &conn, jsonrpc::serverVersion_t type = jsonrpc::JSONRPC_SERVER_V2) : jsonrpc::AbstractServer<AbstractStubServer>(conn, type)
         {
             this->bindAndAddMethod(jsonrpc::Procedure("run", jsonrpc::PARAMS_BY_NAME, jsonrpc::JSON_ARRAY, "key",jsonrpc::JSON_INTEGER,"pid",jsonrpc::JSON_INTEGER,"sid",jsonrpc::JSON_INTEGER,"submission",jsonrpc::JSON_ARRAY, NULL), &AbstractStubServer::runI);
-            this->bindAndAddMethod(jsonrpc::Procedure("loadConf", jsonrpc::PARAMS_BY_NAME, jsonrpc::JSON_ARRAY, "pid",jsonrpc::JSON_INTEGER, NULL), &AbstractStubServer::loadConfI);
             this->bindAndAddMethod(jsonrpc::Procedure("judgeStatus", jsonrpc::PARAMS_BY_NAME, jsonrpc::JSON_OBJECT,  NULL), &AbstractStubServer::judgeStatusI);
             this->bindAndAddMethod(jsonrpc::Procedure("preserve", jsonrpc::PARAMS_BY_NAME, jsonrpc::JSON_INTEGER, "sid",jsonrpc::JSON_INTEGER, NULL), &AbstractStubServer::preserveI);
             this->bindAndAddMethod(jsonrpc::Procedure("cancel", jsonrpc::PARAMS_BY_NAME, jsonrpc::JSON_BOOLEAN, "key",jsonrpc::JSON_INTEGER, NULL), &AbstractStubServer::cancelI);
@@ -23,10 +22,6 @@ class AbstractStubServer : public jsonrpc::AbstractServer<AbstractStubServer>
         inline virtual void runI(const Json::Value &request, Json::Value &response)
         {
             response = this->run(request["key"].asInt(), request["pid"].asInt(), request["sid"].asInt(), request["submission"]);
-        }
-        inline virtual void loadConfI(const Json::Value &request, Json::Value &response)
-        {
-            response = this->loadConf(request["pid"].asInt());
         }
         inline virtual void judgeStatusI(const Json::Value &request, Json::Value &response)
         {
@@ -46,7 +41,6 @@ class AbstractStubServer : public jsonrpc::AbstractServer<AbstractStubServer>
             response = this->sync(request["pid"].asInt());
         }
         virtual Json::Value run(int key, int pid, int sid, const Json::Value& submission) = 0;
-        virtual Json::Value loadConf(int pid) = 0;
         virtual Json::Value judgeStatus() = 0;
         virtual int preserve(int sid) = 0;
         virtual bool cancel(int key) = 0;
