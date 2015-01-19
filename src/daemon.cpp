@@ -101,7 +101,7 @@ class Server : public AbstractStubServer
 				system(ss.str().c_str());
 				pthread_mutex_unlock(&syncLock);
 				ss.str("");
-				ss << "cp " + sourcePath + "/" << sid << "/* .";
+				ss << "cp " + sourcePath + "/" << sid/10000 << '/' << sid%10000 << "/* .";
 #ifdef DEBUG
 				std::clog << ss.str() << std::endl;
 #endif
@@ -175,8 +175,11 @@ class Server : public AbstractStubServer
 			boardingPass.insert(ret);
 			pthread_mutex_unlock(&cntLock);
 			std::ostringstream s;
-			s << "rsync -e 'ssh -c arcfour' -rz -W --del "WEB_SERVER":" << sourcePath << '/' << sid << ' ' << sourcePath;
+			s << "mkdir -p " << sourcePath << '/' << sid/10000;
 			system(s.str().c_str());
+			s.str("");
+			s << "rsync -e 'ssh -c arcfour' -rz -W --del "WEB_SERVER":" << sourcePath << '/' << sid/10000 << '/' << sid%10000 << ' ' << sourcePath << '/' << sid/10000;
+			if (system(s.str().c_str())) return -1;
 			return ret;
 		}
 	
