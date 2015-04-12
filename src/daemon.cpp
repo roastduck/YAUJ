@@ -22,35 +22,33 @@ pthread_mutex_t cntLock = PTHREAD_MUTEX_INITIALIZER, syncLock = PTHREAD_MUTEX_IN
 
 Json::Value dumpCmd(const std::string &cmd, const std::string &dir)
 {
-#ifdef DEBUG
-	std::clog << cmd << std::endl;
-#endif
 	pid_t child = fork();
 	if (!child)
 	{
+#ifdef DEBUG
+		std::clog << "chdir to " << dir << std::endl;
+#endif
 		chdir(dir.c_str());
-		int exitCode = system((cmd+" > yauj.res 2>yauj.log").c_str());
-		if (exitCode)
-		{
-			FILE *e = fopen("yauj.log","r");
-			char *b = new char [PIPE_READ_BUFF_MAX+1];
-			b[fread(b,1,PIPE_READ_BUFF_MAX,e)]=0;
-			fclose(e);
-			Json::Value ret;
-			ret["error"]=b;
-			e = fopen("yauj.res","w");
-			fputs(ret.toStyledString().c_str(),e);
-			fclose(e);
-			delete b;
-		}
-		exit(0);
+#ifdef DEBUG
+		std::clog << cmd << std::endl;
+#endif
+		int exitCode=system((cmd+" > yauj.res 2>yauj.log").c_str());
+		if (!WIFEXITED(exitCode))
+			std::cerr << "failed to run command" << std::endl;
+		exit(WEXITSTATUS(exitCode));
 	} else
 	{
-		waitpid(child, 0, 0);
+		int exitCode;
+		waitpid(child, &exitCode, 0);
+		
 #ifdef DEBUG
-		std::clog << "done" << std::endl;
+		std::clog << "uoj_run done with exit code " << WEXITSTATUS(exitCode) << std::endl;
 #endif
-		FILE *res = fopen((dir+"/yauj.res").c_str(),"r");
+		
+		bool error = (!WIFEXITED(exitCode) || WEXITSTATUS(exitCode));
+		if (error)
+			std::cerr << "An error. cmd=" << cmd << " dir=" << dir << std::endl;
+		FILE *res = fopen((dir+(error?"/yauj.log":"/yauj.res")).c_str(),"r");
 		char *buff = new char [PIPE_READ_BUFF_MAX+1];
 		buff[fread(buff,1,PIPE_READ_BUFF_MAX,res)]=0;
 		if (!feof(res))
@@ -61,11 +59,16 @@ Json::Value dumpCmd(const std::string &cmd, const std::string &dir)
 		}
 		fclose(res);
 		Json::Value ret;
-		Json::Reader reader;
-		if (!reader.parse(buff,ret))
+		if (error)
+			ret["error"] = buff;
+		else
 		{
-			delete buff;
-			throw std::string("[ERROR] return value is not JSON format");
+			Json::Reader reader;
+			if (!reader.parse(buff,ret))
+			{
+				delete buff;
+				throw std::string("[ERROR] return value is not JSON format");
+			}
 		}
 		delete buff;
 		return ret;
@@ -135,7 +138,7 @@ class Server : public AbstractStubServer
 				for (Json::ValueIterator i=submission.begin(); i!=submission.end(); i++)
 					ss << " " << (*i)["language"].asString() << " " << (*i)["source"].asString();
 				ret=dumpCmd(ss.str(),runDir);
-#ifndef DEBUG
+#ifndef NCLEAN
 				pthread_mutex_lock(&cmdLock), system(("rm -r "+runDir).c_str()), pthread_mutex_unlock(&cmdLock);
 #endif
 			} catch (std::string &e)
@@ -206,10 +209,19 @@ class Server : public AbstractStubServer
 				system(s.str().c_str());
 				s.str("");
 				s << "rsync -e 'ssh -c arcfour' -rz -W --del "WEB_SERVER":" << sourcePath << '/' << sid/10000 << '/' << sid%10000 << ' ' << sourcePath << '/' << sid/10000;
-				exit(system(s.str().c_str()));
+				int exitCode=system(s.str().c_str());
+				if (!WIFEXITED(exitCode))
+					std::cerr << "failed to run rsync" << std::endl;
+				exit(WEXITSTATUS(exitCode));
 			}
 			waitpid(child,&exitCode,0);
-			if (!WIFEXITED(exitCode)||WEXITSTATUS(exitCode)) return -1;
+			if (!WIFEXITED(exitCode)||WEXITSTATUS(exitCode))
+			{
+				pthread_mutex_lock(&cntLock);
+				preserveCnt--;
+				pthread_mutex_unlock(&cntLock);
+				return -1;
+			}
 			
 			int ret;
 			pthread_mutex_lock(&cntLock);
@@ -253,11 +265,20 @@ class Server : public AbstractStubServer
 				int ret;
 				system(("mkdir -p "+dataPath).c_str());
 				std::ostringstream s;
-				s << "rsync -e 'ssh -c arcfour' -crz --del "WEB_SERVER":" << dataPath << '/' << pid << ' ' << dataPath << ". >/dev/null";
-				if (system(s.str().c_str())) exit(1);
+				s << "rsync -e 'ssh -c arcfour' -crz --del "WEB_SERVER":" << dataPath << '/' << pid << ' ' << dataPath << " >/dev/null";
+				if (system(s.str().c_str()))
+				{
+					std::cerr << "sync : rsync failed. pid=" << pid << std::endl;
+					exit(1);
+				}
 				s.str("");
-				s << "make -C " << dataPath << '/' << pid << " >/dev/null 2>&1";
-				if (system("make >/dev/null 2>&1")) exit(1);
+				s << "make -i -C " << dataPath << '/' << pid << " > " << dataPath << '/' << pid << "/make.log 2>&1";
+				system(s.str().c_str());
+				/*if (system(s.str().c_str())) 
+				{
+					std::cerr << "sync : make failed. pid=" << pid << std::endl;
+					exit(2);
+				}*/
 				exit(0);
 			}
 			waitpid(child,&exitCode,0);
@@ -265,7 +286,8 @@ class Server : public AbstractStubServer
 #ifdef DEBUG
 			std::clog << " synced" << std::endl;
 #endif
-			return (WIFEXITED(exitCode)&&!WEXITSTATUS(exitCode))?"failed":"success";
+			if (WIFEXITED(exitCode)&&WEXITSTATUS(exitCode)==2) return "error";
+			return (WIFEXITED(exitCode)&&!WEXITSTATUS(exitCode))?"success":"failed";
 		}
 };
 

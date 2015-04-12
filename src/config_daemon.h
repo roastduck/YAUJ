@@ -16,7 +16,7 @@
 #define	SOURCE_PATH					"/home/user/yauj_src/test/src"
 #endif
 
-#define	PIPE_READ_BUFF_MAX				65536
+#define	PIPE_READ_BUFF_MAX				33553408
 
 #define	MAX_RUN						2
 

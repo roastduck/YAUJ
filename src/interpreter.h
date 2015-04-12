@@ -133,7 +133,7 @@ class iter
 		inline iter(v_base_ptr x) : ptr(x) {}
 		inline iter(const iter &x) : ptr(x.ptr) {}
 		inline iter(iter &&x) : ptr(std::move(x.ptr)) {}
-		inline iter &operator=(iter &&x) { ptr = std::move(x.ptr); }
+		inline iter &operator=(iter &&x) { ptr = std::move(x.ptr); return *this; }
 		iter &operator=(const iter &x);
 		v_base &operator*() const;
 		v_base_ptr operator->() const;

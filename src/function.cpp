@@ -19,6 +19,13 @@
 
 #define FUNC_END(name) catch (const std::runtime_error &e) { throw std::runtime_error(#name" : "+std::string(e.what())); }
 
+static char *escape(char *s)
+{
+	for (char *i=s;*i;i++)
+		if (!isascii(*i)) *i='?';
+	return s;
+}
+
 static void mode1filter(char *s)
 {
 	/*for (char *i=s; ; i++)
@@ -49,7 +56,7 @@ static void mode2filter(char *s)
 {
 	char *j=s;
 	for (char *i=s; *i; i++)
-		if (isprint(*i) && !isblank(*i))
+		if (isprint(*i) && !isspace(*i))
 			*(j++) = *i;
 		else if (j>s && *(j-1)!=' ')
 			*(j++) = ' ';
@@ -59,14 +66,14 @@ static void mode2filter(char *s)
 // 0=ok 1=fmt_err 2=eof
 static int nextWord(char *&p1, char *&p2, char *&q1, char *&q2)
 {
-	for (;iscntrl(*p1) && iscntrl(*p2) || isblank(*p1) || isblank(*p2); p1++,p2++)
+	for (;iscntrl(*p1) && iscntrl(*p2) || isspace(*p1) || isspace(*p2); p1++,p2++)
 	{
 		if (!*p1 && !*p2) return 2;
 		if (*p1!=*p2) return 1;
 	}
 	q1 = p1, q2 = p2;
-	while (isprint(*p1) && !isblank(*p1)) p1++;
-	while (isprint(*p2) && !isblank(*p2)) p2++;
+	while (isprint(*p1) && !isspace(*p1)) p1++;
+	while (isprint(*p2) && !isspace(*p2)) p2++;
 	return 0;
 }
 
@@ -193,7 +200,7 @@ namespace func
 	{
 		try
 		{
-			static boost::regex regi("[0-9]+"), regf("[0-9]*\\.[0-9]+");
+			static boost::regex regi("[0-9]\\{1,9\\}"), regf("[+-]?[0-9]+(\\.[0-9]*)?([Ee][+-]?[0-9]+)?");
 			std::string s = str->as_str(), p = pat->as_str();
 			std::vector<iter> ret;
 			size_t pos(0);
@@ -274,25 +281,28 @@ namespace func
 				SL = _v_filemode[_I_(new v_int(4))][file][_I_(new v_str("stack"))][toVector(cases)[0]]->as_str();
 			else
 				SL = "8192";
-			if (_v_filemode[_I_(new v_int(0))])
-				for (auto &x : _v_filemode[_I_(new v_int(0))]->as_dict())
-					for (const auto &y : toVector(x.second[_I_(new v_str("by"))]))
-						if (y == src)
-						{
-							RB += " --add-readable="+x.first;
-							break;
-						}
-			if (_v_filemode[_I_(new v_int(1))])
-				for (auto &x : _v_filemode[_I_(new v_int(1))]->as_dict())
-					for (const auto &y : toVector(x.second[_I_(new v_str("by"))]))
-						if (y == src)
-						{
-							WB += " --add-writable="+x.first;
-							system(("touch "+x.first).c_str());
-							break;
-						}
 			if (!src || !_v_filemode[_I_(new v_int(2))][src])
 				OTHER = " --unsafe ";
+			else
+			{
+				if (_v_filemode[_I_(new v_int(0))])
+					for (auto &x : _v_filemode[_I_(new v_int(0))]->as_dict())
+						for (const auto &y : toVector(x.second[_I_(new v_str("by"))]))
+							if (y == src)
+							{
+								RB += " --add-readable="+x.first;
+								break;
+							}
+				if (_v_filemode[_I_(new v_int(1))])
+					for (auto &x : _v_filemode[_I_(new v_int(1))]->as_dict())
+						for (const auto &y : toVector(x.second[_I_(new v_str("by"))]))
+							if (y == src)
+							{
+								WB += " --add-writable="+x.first;
+								system(("touch "+x.first).c_str());
+								break;
+							}
+			}
 			//COMM="./"+COMM;
 			while (COMM.back()==' ') COMM.pop_back();
 			int u_stat, u_time, u_mem, u_ret;
@@ -408,7 +418,7 @@ namespace func
 			if (!feof(stat))
 				std::cerr << "[WARNING] compile : PIPE_READ_BUFF_MAX exceeded" << std::endl;
 			ret["exitcode"]=_I_(new v_int(pclose(stat)));
-			ret["message"]=_I_(new v_str(buff));
+			ret["message"]=_I_(new v_str(escape(buff)));
 			if (ret["exitcode"])
 			{
 				for (const iter &x : toVector(cases))
@@ -446,7 +456,8 @@ namespace func
 			{
 				if (f1_ptr) fclose(f1_ptr);
 				if (f2_ptr) fclose(f2_ptr);
-				throw std::runtime_error("file not exist");
+				//throw std::runtime_error("file not exist");
+				throw user_error();
 			}
 			static char buff1[DIFF_FILE_BUFF_MAX+1], buff2[DIFF_FILE_BUFF_MAX+1]; // null-termination
 			buff1[fread(buff1,1,DIFF_FILE_BUFF_MAX,f1_ptr)]=0;
@@ -458,6 +469,11 @@ namespace func
 #ifdef DEBUG
 			std::clog << "diff : have read files" << std::endl;
 #endif
+			/*for (char *i = buff1; *i; i++) if (!isascii(*i))
+				throw std::runtime_error("not ACSII");
+			for (char *i = buff2; *i; i++) if (!isascii(*i))
+				throw std::runtime_error("not ASCII");*/
+			escape(buff1), escape(buff2);
 			if (W_MODE == 1)
 				mode1filter(buff1), mode1filter(buff2);
 			if (W_MODE == 2)
@@ -466,7 +482,7 @@ namespace func
 			bool r_verdict(false);
 			double r_max_abs_diff(0), r_max_rel_diff(0);
 			std::pair<std::string,std::string> r_first_diff;
-			while (true)
+			while (*p1 && *p2)
 			{
 				char *q1, *q2;
 				int stat=nextWord(p1,p2,q1,q2);
@@ -481,7 +497,11 @@ namespace func
 				{
 					r_verdict = true;
 					if (r_first_diff.first.empty() && r_first_diff.second.empty())
-						r_first_diff=std::make_pair(std::string(q1,p1),std::string(q2,p2));
+					{
+						r_first_diff=std::make_pair(std::string(q1,std::min(q1+100,p1)),std::string(q2,std::min(q2+100,p2)));
+						if (q1+100<p1) r_first_diff.first+="...";
+						if (q2+100<p2) r_first_diff.second+="...";
+					}
 				}
 				double res1 = getFloat(q1,p1), res2 = getFloat(q2,p2);
 				if (isnan(res1) || isnan(res2))

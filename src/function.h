@@ -102,7 +102,7 @@ namespace func
 	
 	// diff
 	/*
-	 *	$ diff : compare two files. WARNING : THIS diff IS NOT BINARY SAFE.
+	 *	$ diff : compare two files. WARNING : THIS diff IS NOT BINARY SAFE AND NOT SUPPORTING NON-ASCII CHARATERS.
 	 *	@1 f1 : str. path to file one.
 	 *	@2 f2 : str. path to file two.
 	 *	@3 w_mode : int.
