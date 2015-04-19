@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <pthread.h>
+#include <syslog.h>
 #include <jsonrpccpp/server/connectors/httpserver.h>
 #include "abstractstubserver.h"
 #include "config_daemon.h"
@@ -34,7 +35,7 @@ Json::Value dumpCmd(const std::string &cmd, const std::string &dir)
 #endif
 		int exitCode=system((cmd+" > yauj.res 2>yauj.log").c_str());
 		if (!WIFEXITED(exitCode))
-			std::cerr << "failed to run command" << std::endl;
+			syslog(LOG_ERR, "failed to run command");
 		exit(WEXITSTATUS(exitCode));
 	} else
 	{
@@ -47,7 +48,7 @@ Json::Value dumpCmd(const std::string &cmd, const std::string &dir)
 		
 		bool error = (!WIFEXITED(exitCode) || WEXITSTATUS(exitCode));
 		if (error)
-			std::cerr << "An error. cmd=" << cmd << " dir=" << dir << std::endl;
+			syslog(LOG_ERR, "%s", ("An error. cmd="+cmd+" dir="+dir).c_str());
 		FILE *res = fopen((dir+(error?"/yauj.log":"/yauj.res")).c_str(),"r");
 		char *buff = new char [PIPE_READ_BUFF_MAX+1];
 		buff[fread(buff,1,PIPE_READ_BUFF_MAX,res)]=0;
@@ -211,7 +212,7 @@ class Server : public AbstractStubServer
 				s << "rsync -e 'ssh -c arcfour' -rz -W --del "WEB_SERVER":" << sourcePath << '/' << sid/10000 << '/' << sid%10000 << ' ' << sourcePath << '/' << sid/10000;
 				int exitCode=system(s.str().c_str());
 				if (!WIFEXITED(exitCode))
-					std::cerr << "failed to run rsync" << std::endl;
+					syslog(LOG_ERR, "failed to run rsync");
 				exit(WEXITSTATUS(exitCode));
 			}
 			waitpid(child,&exitCode,0);
@@ -268,17 +269,13 @@ class Server : public AbstractStubServer
 				s << "rsync -e 'ssh -c arcfour' -crz --del "WEB_SERVER":" << dataPath << '/' << pid << ' ' << dataPath << " >/dev/null";
 				if (system(s.str().c_str()))
 				{
-					std::cerr << "sync : rsync failed. pid=" << pid << std::endl;
+					syslog(LOG_ERR,"sync : rsync failed. pid=%d",pid);
 					exit(1);
 				}
 				s.str("");
 				s << "make -i -C " << dataPath << '/' << pid << " > " << dataPath << '/' << pid << "/make.log 2>&1";
-				system(s.str().c_str());
-				/*if (system(s.str().c_str())) 
-				{
-					std::cerr << "sync : make failed. pid=" << pid << std::endl;
-					exit(2);
-				}*/
+				if (system(s.str().c_str())) 
+					syslog(LOG_WARNING,"sync : make failed. pid=%d",pid);
 				exit(0);
 			}
 			waitpid(child,&exitCode,0);
@@ -296,12 +293,13 @@ char dataPath[][256] = { DATA_PATH , "" }, runPath[][256] = { RUN_PATH , "" }, s
 
 int main()
 {
+	openlog("yauj_daemon", LOG_PID, LOG_USER);
 	srand(time(0));
 	for (int i=0; ports[i]; i++)
 	{
 		(new Server(*(new HttpServer(ports[i])),JSONRPC_SERVER_V1V2,dataPath[i],runPath[i],sourcePath[i]))->StartListening();
-		std::clog << "Listening Started on Port " << ports[i] << std::endl;
+		syslog(LOG_INFO, "Listening Started on Port %d", ports[i]);
 	}
-	std::cin.get();
+	pause();
 }
 
