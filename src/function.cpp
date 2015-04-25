@@ -482,7 +482,7 @@ namespace func
 			bool r_verdict(false);
 			double r_max_abs_diff(0), r_max_rel_diff(0);
 			std::pair<std::string,std::string> r_first_diff;
-			while (*p1 && *p2)
+			while (*p1 || *p2)
 			{
 				char *q1, *q2;
 				int stat=nextWord(p1,p2,q1,q2);
