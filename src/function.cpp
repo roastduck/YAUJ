@@ -318,9 +318,9 @@ namespace func
 			pclose(sandbox);
 			ret["status"] = _I_(new v_str(
 						u_stat == RS_AC ? "accepted" :
-						u_stat == RS_MLE ? "memory limit exceed" :
-						u_stat == RS_OLE ? "output limit exceed" :
-						u_stat == RS_TLE ? "time limit exceed" :
+						u_stat == RS_MLE ? "memory limit exceeded" :
+						u_stat == RS_OLE ? "output limit exceeded" :
+						u_stat == RS_TLE ? "time limit exceeded" :
 						u_stat == RS_RE ? "runtime error" :
 						u_stat == RS_JGF ? "internal error" :
 						u_stat == RS_DGS ? "dangerous syscall" :
