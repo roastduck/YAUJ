@@ -62,7 +62,7 @@ namespace func
 	 *	@5 err : str. stderr redirection.
 	 *	@6 param : parameters.
 	 *	@return : dict.
-	 *		["status"] : str. "accepted" / "memory limit exceeded" / "output limit exceeded" / "time limit exceeded" / "runtime error" / "internal error" / "dangerous syscall".
+	 *		["status"] : str. "accepted" / "memory limit exceeded" / "output limit exceeded" / "time limit exceeded" / "runtime error" / "internal error" / "dangerous syscall". And you can add "partially accepted", "spj error". Function `compile` would generate "compile error".
 	 *		["time"] : int. cpu time in ms.
 	 *		["memory"] : int. maximum memory use in byte.
 	 *		["exitcode"] : int. exit code.

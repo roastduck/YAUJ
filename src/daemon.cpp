@@ -81,7 +81,7 @@ class Server : public AbstractStubServer
 	const std::string dataPath, runPath, sourcePath;
 	
 	public :
-		Server(AbstractServerConnector &connector, serverVersion_t type, char *_dataPath, char *_runPath, char *_sourcePath)
+		Server(AbstractServerConnector &connector, serverVersion_t type, const std::string &_dataPath, const std::string &_runPath, const std::string &_sourcePath)
 			: dataPath(_dataPath), runPath(_runPath), sourcePath(_sourcePath), AbstractStubServer(connector,type) {}
 		
 		virtual Json::Value run(int key, int pid, int sid, const Json::Value &submission)
@@ -288,17 +288,39 @@ class Server : public AbstractStubServer
 		}
 };
 
-int ports[] = { LISTEN_PORT , 0 };
-char dataPath[][256] = { DATA_PATH , "" }, runPath[][256] = { RUN_PATH , "" }, sourcePath[][256] = { SOURCE_PATH , ""};
+Json::Value config;
+
+bool readConf()
+{
+	Json::Reader reader;
+	char buff[CONFIG_BUFF_MAX+1];
+	FILE *f = fopen("/etc/yauj/daemon.json","r");
+	buff[fread(buff,1,CONFIG_BUFF_MAX,f)]=0;
+	if (!feof(f)) return fclose(f), false;
+	fclose(f);
+	if (!reader.parse(buff,config)) return false;
+	return true;
+}
 
 int main()
 {
 	openlog("yauj_daemon", LOG_PID, LOG_USER);
 	srand(time(0));
-	for (int i=0; ports[i]; i++)
+	if (!readConf())
 	{
-		(new Server(*(new HttpServer(ports[i])),JSONRPC_SERVER_V1V2,dataPath[i],runPath[i],sourcePath[i]))->StartListening();
-		syslog(LOG_INFO, "Listening Started on Port %d", ports[i]);
+		syslog(LOG_ERR, "Can't read configuration");
+		return 1;
+	}
+	for (Json::Value::iterator i=config.begin(); i!=config.end(); i++)
+	{
+		(new Server(
+				  *(new HttpServer((*i)[std::string("port")].asInt())),
+				  JSONRPC_SERVER_V1V2,
+				  (*i)[std::string("dataPath")].asString(),
+				  (*i)[std::string("runPath")].asString(),
+				  (*i)[std::string("sourcePath")].asString()
+		))->StartListening();
+		syslog(LOG_INFO, "Listening Started on Port %d", (*i)[std::string("port")].asInt());
 	}
 	pause();
 }
