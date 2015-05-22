@@ -78,11 +78,11 @@ Json::Value dumpCmd(const std::string &cmd, const std::string &dir)
 
 class Server : public AbstractStubServer
 {
-	const std::string dataPath, runPath, sourcePath;
+	const std::string webServer, dataPath, runPath, sourcePath;
 	
 	public :
-		Server(AbstractServerConnector &connector, serverVersion_t type, const std::string &_dataPath, const std::string &_runPath, const std::string &_sourcePath)
-			: dataPath(_dataPath), runPath(_runPath), sourcePath(_sourcePath), AbstractStubServer(connector,type) {}
+		Server(AbstractServerConnector &connector, serverVersion_t type, const std::string &_webServer, const std::string &_dataPath, const std::string &_runPath, const std::string &_sourcePath)
+			: webServer(_webServer), dataPath(_dataPath), runPath(_runPath), sourcePath(_sourcePath), AbstractStubServer(connector,type) {}
 		
 		virtual Json::Value run(int key, int pid, int sid, const Json::Value &submission)
 		{
@@ -205,11 +205,12 @@ class Server : public AbstractStubServer
 			pid_t child = fork();
 			if (!child)
 			{
+				if (webServer=="127.0.0.1" || webServer=="localhost") exit(0);
 				std::ostringstream s;
 				s << "mkdir -p " << sourcePath << '/' << sid/10000;
 				system(s.str().c_str());
 				s.str("");
-				s << "rsync -e 'ssh -c arcfour' -rz -W --del "WEB_SERVER":" << sourcePath << '/' << sid/10000 << '/' << sid%10000 << ' ' << sourcePath << '/' << sid/10000;
+				s << "rsync -e 'ssh -c arcfour' -rz -W --del " << webServer << ":" << sourcePath << '/' << sid/10000 << '/' << sid%10000 << ' ' << sourcePath << '/' << sid/10000;
 				int exitCode=system(s.str().c_str());
 				if (!WIFEXITED(exitCode))
 					syslog(LOG_ERR, "failed to run rsync");
@@ -251,6 +252,7 @@ class Server : public AbstractStubServer
 #ifdef DEBUG
 			std::clog << "sync" << std::endl;
 #endif
+			if (webServer=="127.0.0.1" || webServer=="localhost") return "success";
 			pthread_mutex_lock(&syncLock);
 			if (syncing.count(pid)) return pthread_mutex_unlock(&syncLock), "syncing";
 			syncing.insert(pid);
@@ -266,7 +268,7 @@ class Server : public AbstractStubServer
 				int ret;
 				system(("mkdir -p "+dataPath).c_str());
 				std::ostringstream s;
-				s << "rsync -e 'ssh -c arcfour' -crz --del "WEB_SERVER":" << dataPath << '/' << pid << ' ' << dataPath << " >/dev/null";
+				s << "rsync -e 'ssh -c arcfour' -crz --del " << webServer << ":" << dataPath << '/' << pid << ' ' << dataPath << " >/dev/null";
 				if (system(s.str().c_str()))
 				{
 					syslog(LOG_ERR,"sync : rsync failed. pid=%d",pid);
@@ -316,6 +318,7 @@ int main()
 		(new Server(
 				  *(new HttpServer((*i)[std::string("port")].asInt())),
 				  JSONRPC_SERVER_V1V2,
+				  (*i)[std::string("webServer")].asString(),
 				  (*i)[std::string("dataPath")].asString(),
 				  (*i)[std::string("runPath")].asString(),
 				  (*i)[std::string("sourcePath")].asString()
