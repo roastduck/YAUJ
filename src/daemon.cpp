@@ -252,7 +252,6 @@ class Server : public AbstractStubServer
 #ifdef DEBUG
 			std::clog << "sync" << std::endl;
 #endif
-			if (webServer=="127.0.0.1" || webServer=="localhost") return "success";
 			pthread_mutex_lock(&syncLock);
 			if (syncing.count(pid)) return pthread_mutex_unlock(&syncLock), "syncing";
 			syncing.insert(pid);
@@ -265,14 +264,17 @@ class Server : public AbstractStubServer
 			pid_t child = fork();
 			if (!child)
 			{
-				int ret;
-				system(("mkdir -p "+dataPath).c_str());
 				std::ostringstream s;
-				s << "rsync -e 'ssh -c arcfour' -crz --del " << webServer << ":" << dataPath << '/' << pid << ' ' << dataPath << " >/dev/null";
-				if (system(s.str().c_str()))
+				int ret;
+				if (webServer!="127.0.0.1" && webServer!="localhost")
 				{
-					syslog(LOG_ERR,"sync : rsync failed. pid=%d",pid);
-					exit(1);
+					system(("mkdir -p "+dataPath).c_str());
+					s << "rsync -e 'ssh -c arcfour' -crz --del " << webServer << ":" << dataPath << '/' << pid << ' ' << dataPath << " >/dev/null";
+					if (system(s.str().c_str()))
+					{
+						syslog(LOG_ERR,"sync : rsync failed. pid=%d",pid);
+						exit(1);
+					}
 				}
 				s.str("");
 				s << "make -i -C " << dataPath << '/' << pid << " > " << dataPath << '/' << pid << "/make.log 2>&1";

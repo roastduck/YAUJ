@@ -271,8 +271,8 @@ int main()
 		NODE *tail = &front;
 		for (; tail->next; tail=tail->next)
 		{
-			fprintf(decl_part, tail == &front? "iter ": ", ");
-			fprintf(decl_part, tail->symbol);
+			fprintf(decl_part, "%s", tail == &front? "iter ": ", ");
+			fprintf(decl_part, "%s", tail->symbol);
 		}
 		fputs(";",decl_part);
 	}
