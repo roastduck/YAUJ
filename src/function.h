@@ -130,6 +130,16 @@ namespace func
 	 */
 	iter bin_diff(const iter &f1, const iter &f2);
 	
+	/********** vjudge_hack.cpp **********/
+	/*
+	 *	$ vjudge_hack : hack vjudge to run programs. it requires internet access to vjudge.
+	 *	@1 lang : str. language.
+	 *	@2 src : str. source code.
+	 *	@3 oj : str. oj name. please keep consistent with vjudge, including case of letters.\
+	 *	@4 pid : str. problem id on vjudge.
+	 */
+	iter vjudge_hack(const iter &lang, const iter &src, const iter &oj, const iter &pid);
+	/**********       end       **********/
 }
 
 #endif
