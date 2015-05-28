@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <algorithm>
 #include <exception>
 #include <stdexcept>
 #include <unistd.h>
@@ -125,7 +126,10 @@ struct JudgeResult
 	std::string verdict;
 	JudgeResult(bool _ok) : ok(_ok) {}
 	JudgeResult(const std::string &_verdict, int _time, int _memory, int _codeLength) : 
-		verdict(_verdict), time(_time), memory(_memory), codeLength(_codeLength), ok(true) {}
+		verdict(_verdict), time(_time), memory(_memory), codeLength(_codeLength), ok(true)
+	{
+		std::transform(verdict.begin(), verdict.end(), verdict.begin(), tolower);
+	}
 };
 
 size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
