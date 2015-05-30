@@ -195,6 +195,15 @@ namespace func
 		}
 		FUNC_END(copy);
 	}
+
+	void remove(const iter &file)
+	{
+		try
+		{
+			system(("rm "+file->as_str()).c_str());
+		}
+		FUNC_END(remove);
+	}
 	
 	iter split(const iter &str, const iter &pat)
 	{

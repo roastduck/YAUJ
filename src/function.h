@@ -39,6 +39,11 @@ namespace func
 	 */
 	void copy(const iter &src, const iter &tar);
 	/*
+	 *	$ remove : remove file
+	 *	@1 : file : str
+	 */
+	void remove(const iter &file);
+	/*
 	 *	$ split : split str into list, converting every single element of it to number if possible.
 	 *	@1 : str : str.
 	 *	@2 : pat : str. patterns. split by any character in it.

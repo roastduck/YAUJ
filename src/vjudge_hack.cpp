@@ -25,7 +25,7 @@ Json::Value config;
 
 static const std::string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-std::string base64_encode(unsigned char const* bytes_to_encode, unsigned int in_len)
+static std::string base64_encode(unsigned char const* bytes_to_encode, unsigned int in_len)
 {
 	std::string ret;
 	int i = 0;
@@ -64,7 +64,7 @@ std::string base64_encode(unsigned char const* bytes_to_encode, unsigned int in_
 
 #define swl(c,cpp,c11,pas) (lang=="c"?(c):lang=="c++"?(cpp):lang=="c++11"?(c11):lang=="pascal"?pas:-1)
 
-inline int language_code(const std::string &oj, const std::string &lang)
+static inline int language_code(const std::string &oj, const std::string &lang)
 {
 	int ret(-1);
 	if (oj == "ACdream")     ret = swl(1,	2,	-1,	-1); else
@@ -88,7 +88,7 @@ inline int language_code(const std::string &oj, const std::string &lang)
 
 #undef swl
 
-CURL *init()
+static CURL *init()
 {
 	if (curl_global_init(CURL_GLOBAL_NOTHING) != CURLE_OK)
 		throw std::runtime_error("curl_global_init failed");
@@ -132,14 +132,14 @@ struct JudgeResult
 	}
 };
 
-size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
+static size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
 {
 	if (userdata)
 		((Result*)userdata)->content += std::string(ptr, size*nmemb);
 	return size*nmemb;
 }
 
-void load(CURL *handle, const char *url, Result *writeTo = NULL, const std::string &data = "")
+static void load(CURL *handle, const char *url, Result *writeTo = NULL, const std::string &data = "")
 {
 	curl_easy_setopt(handle, CURLOPT_URL, url);
 	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, data.c_str());
@@ -151,7 +151,7 @@ void load(CURL *handle, const char *url, Result *writeTo = NULL, const std::stri
 }
 
 template <class Tres, class Tcallback>
-Tres check_status(CURL *handle, const std::string &username, Tcallback callback)
+static Tres check_status(CURL *handle, const std::string &username, Tcallback callback)
 {
 	Result res;
 	std::ostringstream data;
@@ -160,14 +160,14 @@ Tres check_status(CURL *handle, const std::string &username, Tcallback callback)
 	return callback(res);
 }
 
-int no_pending(Result &res)
+static int no_pending(Result &res)
 {
 #ifdef DEBUG_VJUDGE_HACK
 	std::clog << "no_pending: " << res.content << std::endl;
 #endif
 	Json::Value status = res.parse();
 	for (Json::Value::iterator i=status["data"].begin(); i!=status["data"].end(); i++)
-		if ((*i)[3] == "Submitted" || (*i)[3] == "Waiting" || (*i)[3] == "Pending") return -1;
+		if ((*i)[3] == "Submitted" || (*i)[3] == "Waiting" || (*i)[3] == "Pending" || (*i)[3] == "Compiling") return -1;
 	return status["data"][0][0].asInt();
 }
 
@@ -186,7 +186,7 @@ struct fetch_result
 		{
 			if ((*i)[0] == minsid) break;
 			if ((*i)[7] == len)
-				if ((*i)[3] == "Waiting" || (*i)[3] == "Submitted" || (*i)[3] == "Pending")
+				if ((*i)[3] == "Waiting" || (*i)[3] == "Submitted" || (*i)[3] == "Pending" || (*i)[3] == "Compiling")
 					return JudgeResult(false);
 				else
 					return JudgeResult((*i)[3].asString(), (*i)[5].asInt(),(*i)[4].asInt(),len);
@@ -195,7 +195,7 @@ struct fetch_result
 	}
 };
 
-void login(CURL *handle, const std::string &username, const std::string &passwd)
+static void login(CURL *handle, const std::string &username, const std::string &passwd)
 {
 	Result res;
 	std::ostringstream data;
@@ -207,14 +207,14 @@ void login(CURL *handle, const std::string &username, const std::string &passwd)
 	if (res.content != "\"success\"") throw std::runtime_error("login failed");
 }
 
-void submit(CURL *handle, const std::string &oj, const std::string &lang, const std::string &src, int pid)
+static void submit(CURL *handle, const std::string &oj, const std::string &lang, const std::string &src, int pid)
 {
 	std::ostringstream data;
 	data << "language=" << language_code(oj, lang) << "&isOpen=0&source=" << base64_encode((const unsigned char *)(src.c_str()), src.length()) << "&id=" << pid;
 	load(handle, "http://acm.hust.edu.cn/vjudge/problem/submit.action", NULL, data.str());
 }
 
-void read_config()
+static void read_config()
 {
 	char buff[32768];
 	FILE *f = fopen(VJUDGE_CONFIG_FILE, "r");
@@ -226,7 +226,7 @@ void read_config()
 		throw std::runtime_error("Failed to read config file");
 }
 
-JudgeResult judge(const std::string &lang, const std::string &src, const std::string &oj, int pid)
+static JudgeResult judge(const std::string &lang, const std::string &src, const std::string &oj, int pid)
 {
 	read_config();
 	CURL *handle = init();
@@ -261,11 +261,18 @@ namespace func
 		{
 			JudgeResult got = judge(lang->as_str(), src->as_str(), oj->as_str(), pid->as_int());
 			iter ret = _I_(new v_dict);
-			ret->as_dict()["verdict"] = _I_(new v_str(got.verdict));
-			ret->as_dict()["time"] = _I_(new v_int(got.time));
-			ret->as_dict()["memory"] = _I_(new v_int(got.memory));
-			ret->as_dict()["codeLength"] = _I_(new v_int(got.codeLength));
-			ret->as_dict()["message"] = _I_(new v_str("judged by vjudge"));
+			if (got.ok)
+			{
+				ret->as_dict()["status"] = _I_(new v_str(got.verdict));
+				ret->as_dict()["time"][src] = _I_(new v_int(got.time));
+				ret->as_dict()["memory"][src] = _I_(new v_int(got.memory));
+				ret->as_dict()["codeLength"][src] = _I_(new v_int(got.codeLength));
+				ret->as_dict()["message"] = _I_(new v_str("judged by vjudge"));
+			} else
+			{
+				ret->as_dict()["status"] = _I_(new v_str("internal error"));
+				ret->as_dict()["message"] = _I_(new v_str("unable to fetch result from vjudge"));
+			}
 			return ret;
 		} catch (const std::runtime_error &e)
 		{
