@@ -140,10 +140,11 @@ namespace func
 	 *	$ vjudge_hack : hack vjudge to run programs. it requires internet access to vjudge.
 	 *	@1 lang : str. language.
 	 *	@2 src : str. source code.
-	 *	@3 oj : str. oj name. please keep consistent with vjudge, including case of letters.\
-	 *	@4 pid : str. problem id on vjudge.
+	 *	@3 filename : str. source file name.
+	 *	@4 oj : str. oj name. please keep consistent with vjudge, including case of letters.\
+	 *	@5 pid : str. problem id on vjudge.
 	 */
-	iter vjudge_hack(const iter &lang, const iter &src, const iter &oj, const iter &pid);
+	iter vjudge_hack(const iter &lang, const iter &src, const iter &filename, const iter &oj, const iter &pid);
 	/**********       end       **********/
 }
 

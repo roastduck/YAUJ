@@ -88,6 +88,20 @@ static inline int language_code(const std::string &oj, const std::string &lang)
 
 #undef swl
 
+const inline bool is_pending(const std::string &s)
+{
+	return (
+			s == "Submitted" || 
+			s == "Waiting" || 
+			s == "Pending" || 
+			s == "Compiling" || 
+			s == "Running" ||
+			s == "Judging" ||
+			s == "Sent to judge" ||
+			s == "Processing"
+		  );
+}
+
 static CURL *init()
 {
 	if (curl_global_init(CURL_GLOBAL_NOTHING) != CURLE_OK)
@@ -167,14 +181,14 @@ static int no_pending(Result &res)
 #endif
 	Json::Value status = res.parse();
 	for (Json::Value::iterator i=status["data"].begin(); i!=status["data"].end(); i++)
-		if ((*i)[3] == "Submitted" || (*i)[3] == "Waiting" || (*i)[3] == "Pending" || (*i)[3] == "Compiling") return -1;
+		if (is_pending((*i)[3].asString())) return -1;
 	return status["data"][0][0].asInt();
 }
 
 struct fetch_result
 {
-	int len, minsid;
-	fetch_result(int _len, int _minsid) : len(_len), minsid(_minsid) {}
+	int len, pid, minsid;
+	fetch_result(int _len, int _pid, int _minsid) : len(_len), pid(_pid), minsid(_minsid) {}
 	
 	JudgeResult operator()(Result &res)
 	{
@@ -185,8 +199,8 @@ struct fetch_result
 		for (Json::Value::iterator i=status["data"].begin(); i!=status["data"].end(); i++)
 		{
 			if ((*i)[0] == minsid) break;
-			if ((*i)[7] == len)
-				if ((*i)[3] == "Waiting" || (*i)[3] == "Submitted" || (*i)[3] == "Pending" || (*i)[3] == "Compiling")
+			if ((*i)[7] == len && (*i)[2] == pid)
+				if (is_pending((*i)[3].asString()))
 					return JudgeResult(false);
 				else
 					return JudgeResult((*i)[3].asString(), (*i)[5].asInt(),(*i)[4].asInt(),len);
@@ -243,7 +257,7 @@ static JudgeResult judge(const std::string &lang, const std::string &src, const 
 			while (!ret.ok)
 			{
 				if (++cnt == MAX_FETCH_TRIAL) break;
-				ret = check_status<JudgeResult>(handle, (*i)["username"].asString(), fetch_result(src.length(), max_sid));
+				ret = check_status<JudgeResult>(handle, (*i)["username"].asString(), fetch_result(src.length(), pid, max_sid));
 			}
 			curl_easy_cleanup(handle);
 			curl_global_cleanup();
@@ -255,7 +269,7 @@ static JudgeResult judge(const std::string &lang, const std::string &src, const 
 }
 namespace func
 {
-	iter vjudge_hack(const iter &lang, const iter &src, const iter &oj, const iter &pid)
+	iter vjudge_hack(const iter &lang, const iter &src, const iter &filename, const iter &oj, const iter &pid)
 	{
 		try
 		{
@@ -264,9 +278,9 @@ namespace func
 			if (got.ok)
 			{
 				ret->as_dict()["status"] = _I_(new v_str(got.verdict));
-				ret->as_dict()["time"][src] = _I_(new v_int(got.time));
-				ret->as_dict()["memory"][src] = _I_(new v_int(got.memory));
-				ret->as_dict()["codeLength"][src] = _I_(new v_int(got.codeLength));
+				ret->as_dict()["time"][filename] = _I_(new v_int(got.time));
+				ret->as_dict()["memory"][filename] = _I_(new v_int(got.memory));
+				ret->as_dict()["codeLength"][filename] = _I_(new v_int(got.codeLength));
 				ret->as_dict()["message"] = _I_(new v_str("judged by vjudge"));
 			} else
 			{
