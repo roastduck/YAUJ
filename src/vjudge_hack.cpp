@@ -1,7 +1,9 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
+#include <ios>
 #include <string>
+#include <iomanip>
 #include <sstream>
 #include <iostream>
 #include <algorithm>
@@ -62,7 +64,25 @@ static std::string base64_encode(unsigned char const* bytes_to_encode, unsigned 
 	return ret;
 }
 
-#define swl(c,cpp,c11,pas) (lang=="c"?(c):lang=="c++"?(cpp):lang=="c++11"?(c11):lang=="pascal"?pas:-1)
+static std::string url_encode(const std::string &value)
+{
+	std::ostringstream escaped;
+	escaped.fill('0');
+	escaped << std::hex;
+	for (std::string::const_iterator i = value.begin(), n = value.end(); i != n; ++i)
+	{
+		std::string::value_type c = (*i);
+		if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~')
+		{
+			escaped << c;
+			continue;
+		}
+		escaped << '%' << std::setw(2) << int((unsigned char) c);
+	}
+	return escaped.str();
+}
+
+#define swl(c,cpp,c11,pas) (lang=="c"?(c):lang=="c++"?(cpp):lang=="c++11"?(c11):lang=="pascal"?(pas):-1)
 
 static inline int language_code(const std::string &oj, const std::string &lang)
 {
@@ -84,6 +104,7 @@ static inline int language_code(const std::string &oj, const std::string &lang)
 	if (oj == "UVALive")     ret = swl(1,	3,	5,	4); else
 	if (oj == "ZOJ")         ret = swl(1,	2,	9,	-1);
 	if (!~ret) throw std::runtime_error("not supported oj or language");
+	return ret;
 }
 
 #undef swl
@@ -155,11 +176,18 @@ static size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdat
 
 static void load(CURL *handle, const char *url, Result *writeTo = NULL, const std::string &data = "")
 {
+	std::clog << "loading " << url << std::endl;
+#ifdef DEBUG
+	std::clog << "loading with data " << data << std::endl;
+#endif
+	char err[CURL_ERROR_SIZE+1];
 	curl_easy_setopt(handle, CURLOPT_URL, url);
 	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, data.c_str());
 	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_callback);
 	curl_easy_setopt(handle, CURLOPT_WRITEDATA, writeTo);
-	curl_easy_perform(handle);
+	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, err);
+	if (curl_easy_perform(handle))
+		throw std::runtime_error(std::string("accessing ")+url+" "+err);
 	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, "");
 	usleep(500 * 1000);
 }
@@ -224,7 +252,7 @@ static void login(CURL *handle, const std::string &username, const std::string &
 static void submit(CURL *handle, const std::string &oj, const std::string &lang, const std::string &src, int pid)
 {
 	std::ostringstream data;
-	data << "language=" << language_code(oj, lang) << "&isOpen=0&source=" << base64_encode((const unsigned char *)(src.c_str()), src.length()) << "&id=" << pid;
+	data << "language=" << language_code(oj, lang) << "&isOpen=0&source=" << url_encode(base64_encode((const unsigned char *)(src.c_str()), src.length())) << "&id=" << pid;
 	load(handle, "http://acm.hust.edu.cn/vjudge/problem/submit.action", NULL, data.str());
 }
 
@@ -267,6 +295,8 @@ static JudgeResult judge(const std::string &lang, const std::string &src, const 
 	curl_global_cleanup();
 	return false;
 }
+
+#ifndef DEBUG_VJUDGE_HACK
 namespace func
 {
 	iter vjudge_hack(const iter &lang, const iter &src, const iter &filename, const iter &oj, const iter &pid)
@@ -294,6 +324,7 @@ namespace func
 		}
 	}
 }
+#endif
 
 #ifdef DEBUG_VJUDGE_HACK
 int main()
@@ -302,7 +333,7 @@ int main()
 	char buff[1048576];
 	buff[fread(buff,1,1048575,f)]=0;
 	fclose(f);
-	JudgeResult ret = judge("c++", buff, "POJ", 10763);
+	JudgeResult ret = judge("c++", buff, "CodeForces", 38380);
 	std::cout << ret.ok << std::endl;
 	std::cout << ret.verdict << std::endl;
 	std::cout << ret.time << std::endl;

@@ -3,7 +3,7 @@
 all : build/daemon build/parser build/libyauj.so
 
 build/libyauj.so : src/interpreter.cpp src/function.cpp
-	g++ src/interpreter.cpp src/function.cpp src/vjudge_hack.cpp -std=c++11 -fPIC -shared -lboost_regex -ljsoncpp -o build/libyauj.so -O2
+	g++ src/interpreter.cpp src/function.cpp src/vjudge_hack.cpp -std=c++11 -fPIC -shared -lboost_regex -ljsoncpp -lcurl -o build/libyauj.so -O2
 
 build/daemon : src/daemon.cpp build/abstractstubserver.h src/config_daemon.h
 	g++ src/daemon.cpp -o build/daemon -pthread -ljsoncpp -lmicrohttpd -ljsonrpccpp-common -ljsonrpccpp-server -Isrc -Ibuild -O2
