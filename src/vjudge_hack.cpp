@@ -189,7 +189,7 @@ static void load(CURL *handle, const char *url, Result *writeTo = NULL, const st
 	if (curl_easy_perform(handle))
 		throw std::runtime_error(std::string("accessing ")+url+" "+err);
 	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, "");
-	usleep(500 * 1000);
+	usleep(2000 * 1000);
 }
 
 template <class Tres, class Tcallback>
