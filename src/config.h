@@ -1,5 +1,5 @@
 // compile
-#define	DEFAULT_O2					true
+#define	DEFAULT_O2					false
 #define	DEFAULT_DEFINE					"ONLINE_JUDGE"
 
 // diff
