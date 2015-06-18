@@ -277,7 +277,7 @@ class Server : public AbstractStubServer
 					}
 				}
 				s.str("");
-				s << "make -i -C " << dataPath << '/' << pid << " > " << dataPath << '/' << pid << "/make.log 2>&1";
+				s << "make -i -B -C " << dataPath << '/' << pid << " > " << dataPath << '/' << pid << "/make.log 2>&1";
 				if (system(s.str().c_str())) 
 					syslog(LOG_WARNING,"sync : make failed. pid=%d",pid);
 				exit(0);
