@@ -80,11 +80,13 @@ static int nextWord(char *&p1, char *&p2, char *&q1, char *&q2)
 static double getFloat(char *st, char *en)
 {
 	int dot(0);
+	bool minus(false);
+	if (*st == '-') st++, minus=true;
 	for (char *i=st; i<en; i++)
 		if (!isdigit(*i))
 			if (*i!='.' || ++dot>1)
 				return nan("");
-	return atof(st);
+	return atof(st)*(minus?-1:1);
 }
 
 static std::vector<iter> toVector(const iter &src)
