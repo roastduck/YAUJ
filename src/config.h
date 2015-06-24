@@ -2,8 +2,11 @@
 #define	DEFAULT_O2					false
 #define	DEFAULT_DEFINE					"ONLINE_JUDGE"
 
+// exec
+#define	DEFAULT_USERSS					false
+
 // diff
-#define DEFAULT_W_MODE					1
+#define	DEFAULT_W_MODE					1
 
 // buffer
 #define	COMMAND_BUFF_MAX				1024

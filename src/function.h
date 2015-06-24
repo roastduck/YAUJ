@@ -79,7 +79,8 @@ namespace func
 		 const iter &in = _I_(new v_str("/dev/null")),
 		 const iter &out = _I_(new v_str("/dev/null")),
 		 const iter &err = _I_(new v_str("/dev/null")),
-		 const iter &param = _I_(new v_str(""))
+		 const iter &param = _I_(new v_str("")),
+		 const iter &measure_rss = _I_(new v_bool(DEFAULT_USERSS))
 		);
 
 	// compile

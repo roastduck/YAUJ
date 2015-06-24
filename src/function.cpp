@@ -269,12 +269,12 @@ namespace func
 	
 	// execute
 	
-	iter exec(const iter &cases, const iter &file, const iter &in, const iter &out, const iter &err, const iter &param)
+	iter exec(const iter &cases, const iter &file, const iter &in, const iter &out, const iter &err, const iter &param, const iter &measure_rss)
 	{
 		try
 		{
 			std::map<std::string,iter> ret;
-			std::string COMM, IN, OUT, ERR, TL, ML, SL, RB, WB, OTHER;
+			std::string COMM, IN, OUT, ERR, TL, ML, SL, RB, WB, OTHER, USERSS;
 			iter src=_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("source"))];
 			COMM = file->as_str()+" "+param->as_str();
 			IN = in->as_str();
@@ -316,8 +316,9 @@ namespace func
 			}
 			//COMM="./"+COMM;
 			while (COMM.back()==' ') COMM.pop_back();
+			if (measure_rss) USERSS = "--use-rss";
 			int u_stat, u_time, u_mem, u_ret;
-			std::string sbcmd = "uoj_run -T "+TL+" -M "+ML+" -S "+SL+" -i "+IN+" -o "+OUT+" -e "+ERR+RB+WB+OTHER+" "+COMM;
+			std::string sbcmd = "uoj_run -T "+TL+" -M "+ML+" -S "+SL+" -i "+IN+" -o "+OUT+" -e "+ERR+RB+WB+OTHER+" "+COMM+" "+USERSS;
 #ifdef DEBUG
 			std::clog << sbcmd << std::endl;
 #endif
