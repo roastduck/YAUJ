@@ -39,9 +39,9 @@ static void mode1filter(char *s)
 			break;
 		}
 	}*/
-	char *t = s+strlen(s), *i = t-1;
+	char *t = s+strlen(s), *i = t;
 	while (i>=s)
-		if (*i=='\n')
+		if (!*i || *i=='\n')
 			for (i--; i>=s && (*i==' ' || *i == '\r'); i--) *i = 0;
 		else
 			i--;
