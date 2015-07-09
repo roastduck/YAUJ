@@ -6,5 +6,3 @@
 #define	CONFIG_BUFF_MAX				65536
 
 #define	MAX_RUN						2
-
-#define	WEB_SERVER					"root@172.16.0.132"
