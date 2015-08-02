@@ -144,6 +144,7 @@ namespace func
 	 *	@3 filename : str. source file name.
 	 *	@4 oj : str. oj name. please keep consistent with vjudge, including case of letters.\
 	 *	@5 pid : str. problem id on vjudge.
+	 *	@return : dict. judge result in the same format as you will return in a single element in the *result* variable, except for there is not *score* property.
 	 */
 	iter vjudge_hack(const iter &lang, const iter &src, const iter &filename, const iter &oj, const iter &pid);
 	/**********       end       **********/
