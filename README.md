@@ -47,3 +47,5 @@ libcurl：vjudge\_hack需要
 3. 将选手提交复制进来  
 4. 运行yauj\_judge   
 注意，daemon将进行文件操作，使用过程中应注意避免使用不同权限执行程序造成的文件权限混乱。应使用同一个普通权限用户执行。此外，daemon编译YAUJ时使用的makefile应预先生成，其中可引用resource文件夹中的makefile，但还应该编译此评测所需的SPJ。  
+
+**更多帮助请参阅[wiki](https://github.com/roastduck/YAUJ/wiki)**
