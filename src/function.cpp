@@ -407,11 +407,12 @@ namespace func
 			} else
 			if (_LANG == "c")
 			{
-				cmd = "gcc -x c -lm ";
+				cmd = "gcc -x c ";
 				for (const std::string &x: _SRC) cmd += x + " ";
 				cmd += " -o " + _TAR;
 				if (_O2) cmd += " -O2 ";
 				for (const std::string &x: _DEF) cmd += " -D" + x;
+				cmd += " -lm";
 			} else
 			if (_LANG == "pascal")
 			{
