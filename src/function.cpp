@@ -407,7 +407,7 @@ namespace func
 			} else
 			if (_LANG == "c")
 			{
-				cmd = "gcc -x c ";
+				cmd = "gcc -x c -lm ";
 				for (const std::string &x: _SRC) cmd += x + " ";
 				cmd += " -o " + _TAR;
 				if (_O2) cmd += " -O2 ";
