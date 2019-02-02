@@ -1,6 +1,6 @@
-.PHONY : all install
+.PHONY : all install clean purge
 
-all : build/daemon build/parser build/libyauj.so
+all : build/abstractstubserver.h build/libyauj.so build/daemon build/parser
 
 build/libyauj.so : src/interpreter.cpp src/function.cpp
 	g++ src/interpreter.cpp src/function.cpp src/vjudge_hack.cpp -std=c++11 -fPIC -shared -lboost_regex -ljsoncpp -lcurl -o build/libyauj.so -O2
@@ -24,7 +24,18 @@ build/parser.tab.c build/parser.tab.h : src/parser.y
 
 install : build/daemon distribute.makefile build/parser
 	cp build/daemon /usr/bin/yauj_daemon
+	-mkdir /home/judge
+	-chmod 777 /home/judge
+	-mkdir /home/judge/resource
+	-chmod 777 /home/judge/resource
 	cp distribute.makefile /home/judge/resource/makefile
 	cp build/libyauj.so /usr/lib/
 	cp -r src /home/judge/resource/
 	cp build/parser /usr/bin/yauj_parser
+
+purge :
+	rm -f build/*
+
+clean :
+	rm -f build/libyauj.so build/daemon build/abstractstubserver.h build/parser
+
