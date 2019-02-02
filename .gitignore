@@ -14,3 +14,4 @@ build/*
 !test
 test/run
 *.swp
+!init-env_bionic.sh
