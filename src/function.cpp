@@ -517,7 +517,7 @@ namespace func
 					}
 				}
 				double res1 = getFloat(q1,p1), res2 = getFloat(q2,p2);
-				if (isnan(res1) || isnan(res2))
+				if (std::isnan(res1) || std::isnan(res2))
 					r_max_abs_diff = r_max_rel_diff = INFINITY;
 				else
 				{

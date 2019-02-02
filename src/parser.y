@@ -15,7 +15,7 @@ typedef struct _NODE
 char *body;
 NODE front;
 
-inline void addSymbol(char *s)
+void addSymbol(char *s)
 {
 	NODE *tail = &front;
 	while (tail->next)
