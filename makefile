@@ -1,4 +1,4 @@
-.PHONY : all install clean purge
+.PHONY : all install clean cleanall
 
 all : build/abstractstubserver.h build/libyauj.so build/daemon build/parser
 
@@ -14,26 +14,24 @@ build/abstractstubserver.h : src/spec.json
 build/parser : build/lex.yy.c build/parser.tab.c src/mystr.c build/parser.tab.h src/mystr.h
 	gcc build/lex.yy.c build/parser.tab.c src/mystr.c -o build/parser -Isrc -Ibuild -O2
 
-build/lex.yy.c : src/parser.l
+build/lex.yy.c : | src/parser.l
 	flex -o build/lex.yy.c src/parser.l
 
-build/parser.tab.c build/parser.tab.h : src/parser.y
+build/parser.tab.c build/parser.tab.h : | src/parser.y
 	bison -d src/parser.y
 	mv parser.tab.c parser.tab.h build/
 
 
 install : build/daemon distribute.makefile build/parser
 	cp build/daemon /usr/bin/yauj_daemon
-	-mkdir /home/judge
-	-chmod 777 /home/judge
-	-mkdir /home/judge/resource
-	-chmod 777 /home/judge/resource
+	-mkdir -p /home/judge/resource
+	-chmod -R 777 /home/judge
 	cp distribute.makefile /home/judge/resource/makefile
 	cp build/libyauj.so /usr/lib/
 	cp -r src /home/judge/resource/
 	cp build/parser /usr/bin/yauj_parser
 
-purge :
+cleanall :
 	rm -f build/*
 
 clean :
