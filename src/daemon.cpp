@@ -136,7 +136,7 @@ class Server : public AbstractStubServer
 				pthread_mutex_lock(&cmdLock), system((ss.str()).c_str()), pthread_mutex_unlock(&cmdLock);
 				ss.str("");
 				ss << "./yauj_judge run";
-				for (Json::ValueIterator i=submission.begin(); i!=submission.end(); i++)
+				for (Json::Value::const_iterator i=submission.begin(); i!=submission.end(); i++)
 					ss << " " << (*i)["language"].asString() << " " << (*i)["source"].asString();
 				ret=dumpCmd(ss.str(),runDir);
 #ifndef NCLEAN
