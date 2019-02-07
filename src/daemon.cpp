@@ -205,7 +205,8 @@ class Server : public AbstractStubServer
 			pid_t child = fork();
 			if (!child)
 			{
-				if (webServer=="127.0.0.1" || webServer=="localhost") exit(0);
+				exit(0);	// localhost-like environment
+				// if (webServer=="127.0.0.1" || webServer=="localhost") exit(0);
 				std::ostringstream s;
 				s << "mkdir -p " << sourcePath << '/' << sid/10000;
 				system(s.str().c_str());
@@ -266,6 +267,8 @@ class Server : public AbstractStubServer
 			{
 				std::ostringstream s;
 				int ret;
+				// localhost-like environment
+				/*
 				if (webServer!="127.0.0.1" && webServer!="localhost")
 				{
 					system(("mkdir -p "+dataPath).c_str());
@@ -276,6 +279,7 @@ class Server : public AbstractStubServer
 						exit(1);
 					}
 				}
+				*/
 				s.str("");
 				s << "make -i -B -C " << dataPath << '/' << pid << " > " << dataPath << '/' << pid << "/make.log 2>&1";
 				if (system(s.str().c_str())) 
