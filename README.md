@@ -62,6 +62,12 @@ sudo make install
 
 若 make 编译不成功，考虑 `make cleanall` 清除 build/ 下所有文件，安装 flex 和 bison，再重新执行 make。
 
+### 配置文件
+
+`sudo make install` 会在 /etc/yauj 下放置一个默认的配置文件 [daemon.json](daemon.json)。
+
+请在启动 /usr/bin/yauj_daemon 前按需修改 daemon.json。
+
 ## 运行
 
 启动 daemon 用 rpc 请求进行评测时，需按如下步骤发出请求：（具体 rpc 过程名参见 [src/spec.json](src/spec.json)）

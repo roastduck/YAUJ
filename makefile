@@ -30,10 +30,11 @@ install : build/daemon distribute.makefile build/parser
 	cp build/libyauj.so /usr/lib/
 	cp -r src /home/judge/resource/
 	cp build/parser /usr/bin/yauj_parser
+	mkdir -p /etc/yauj
+	cp daemon.json /etc/yauj/
 
 cleanall :
 	rm -f build/*
 
 clean :
 	rm -f build/libyauj.so build/daemon build/abstractstubserver.h build/parser
-
