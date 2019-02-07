@@ -24,7 +24,7 @@ build/parser.tab.c build/parser.tab.h : | src/parser.y
 
 install : build/daemon distribute.makefile build/parser
 	cp build/daemon /usr/bin/yauj_daemon
-	-mkdir -p /home/judge/resource
+	mkdir -p /home/judge/resource
 	-chmod -R 777 /home/judge
 	cp distribute.makefile /home/judge/resource/makefile
 	cp build/libyauj.so /usr/lib/
