@@ -265,10 +265,10 @@ class Server : public AbstractStubServer
 			pid_t child = fork();
 			if (!child)
 			{
-				std::ostringstream s;
-				int ret;
 				// localhost-like environment
 				/*
+				std::ostringstream s;
+				int ret;
 				if (webServer!="127.0.0.1" && webServer!="localhost")
 				{
 					system(("mkdir -p "+dataPath).c_str());
@@ -279,11 +279,11 @@ class Server : public AbstractStubServer
 						exit(1);
 					}
 				}
-				*/
 				s.str("");
 				s << "make -i -B -C " << dataPath << '/' << pid << " > " << dataPath << '/' << pid << "/make.log 2>&1";
 				if (system(s.str().c_str())) 
 					syslog(LOG_WARNING,"sync : make failed. pid=%d",pid);
+				*/
 				exit(0);
 			}
 			waitpid(child,&exitCode,0);
