@@ -15,3 +15,6 @@ build/*
 test/run
 *.swp
 !init-env_bionic.sh
+!daemon.json
+!install-service_bionic.sh
+!yaujd

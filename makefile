@@ -1,5 +1,7 @@
 .PHONY : all install clean cleanall
 
+config_file = /etc/yauj/daemon.json
+
 all : build/abstractstubserver.h build/libyauj.so build/daemon build/parser
 
 build/libyauj.so : src/interpreter.cpp src/function.cpp
@@ -24,16 +26,21 @@ build/parser.tab.c build/parser.tab.h : | src/parser.y
 
 install : build/daemon distribute.makefile build/parser
 	cp build/daemon /usr/bin/yauj_daemon
-	-mkdir -p /home/judge/resource
+	mkdir -p /home/judge/resource
 	-chmod -R 777 /home/judge
 	cp distribute.makefile /home/judge/resource/makefile
 	cp build/libyauj.so /usr/lib/
 	cp -r src /home/judge/resource/
 	cp build/parser /usr/bin/yauj_parser
+	mkdir -p /etc/yauj
+ifeq ($(config_file), $(wildcard $(config_file)))
+	@echo "daemon.json already exist"
+else
+	cp daemon.json /etc/yauj/
+endif
 
 cleanall :
 	rm -f build/*
 
 clean :
 	rm -f build/libyauj.so build/daemon build/abstractstubserver.h build/parser
-
