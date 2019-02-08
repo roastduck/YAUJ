@@ -68,6 +68,10 @@ sudo make install
 
 请在启动 /usr/bin/yauj_daemon 前按需修改 daemon.json。
 
+### 系统服务
+
+在 Ubuntu Bionic 下，可以执行 `./install-service_bionic.sh` 以安装 daemon 为系统服务。
+
 ## 运行
 
 启动 daemon 用 rpc 请求进行评测时，需按如下步骤发出请求：（具体 rpc 过程名参见 [src/spec.json](src/spec.json)）
