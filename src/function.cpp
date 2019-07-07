@@ -391,7 +391,7 @@ namespace func
 			std::string cmd;
 			if (_LANG == "c++")
 			{
-				cmd = "g++ -x c++ ";
+				cmd = "g++ -x c++ -std=gnu++98 ";
 				for (const std::string &x: _SRC) cmd += x + " ";
 				cmd += " -o " + _TAR;
 				if (_O2) cmd += " -O2 ";
