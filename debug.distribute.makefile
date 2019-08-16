@@ -7,7 +7,7 @@ decl_part init_part run_part : init.src run.src
 	yauj_parser
 
 % : %.cpp FORCE
-	g++ $< -o $@ -O2
+	g++ $< -o $@ -O2 -std=gnu++98
 
 % : %.pas FORCE
 	fpc $@ -O2
