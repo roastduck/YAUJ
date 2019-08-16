@@ -72,6 +72,11 @@ Json::Value dumpCmd(const std::string &cmd, const std::string &dir)
 			}
 		}
 		delete buff;
+
+#ifdef DEBUG
+		std::clog << "yauj_judge result: " << ret << std::endl;
+#endif
+
 		return ret;
 	}
 }
