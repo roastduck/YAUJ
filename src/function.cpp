@@ -105,13 +105,13 @@ namespace func
 		try { return v_base_ptr(new v_int(::ceil(x->as_float()))); }
 		FUNC_END(ceil);
 	}
-	
+
 	iter floor(const iter &x)
 	{
 		try { return v_base_ptr(new v_int(::floor(x->as_float()))); }
 		FUNC_END(floor);
 	}
-	
+
 	iter round(const iter &x)
 	{
 		try { return v_base_ptr(new v_int(::round(x->as_float()))); }
@@ -119,13 +119,13 @@ namespace func
 	}
 
 	// algorithm
-	
+
 	iter min(const iter &x, const iter &y)
 	{
 		try { return std::min(x,y); }
 		FUNC_END(min);
 	}
-	
+
 	iter max(const iter &x, const iter &y)
 	{
 		try { return std::max(x,y); }
@@ -136,7 +136,7 @@ namespace func
 	{
 		std::swap(x,y);
 	}
-	
+
 	void sort(const iter &x)
 	{
 		try
@@ -148,7 +148,7 @@ namespace func
 		}
 		FUNC_END(sort);
 	}
-	
+
 	// misc
 	iter range(const iter &lo, const iter &hi)
 	{
@@ -188,7 +188,7 @@ namespace func
 		}
 		FUNC_END(read);
 	}
-	
+
 	void copy(const iter &src, const iter &tar)
 	{
 		try
@@ -206,7 +206,7 @@ namespace func
 		}
 		FUNC_END(remove);
 	}
-	
+
 	iter split(const iter &str, const iter &pat)
 	{
 		try
@@ -249,7 +249,7 @@ namespace func
 		}
 		FUNC_END(split);
 	}
-	
+
 	// report
 
 	/*void report(const iter &score, const iter &verdict, const iter &time, const iter &memory, const iter &message)
@@ -266,9 +266,9 @@ namespace func
 		try { std::clog << content->as_json() << std::endl; }
 		FUNC_END(log);
 	}
-	
+
 	// execute
-	
+
 	iter exec(const iter &cases, const iter &file, const iter &in, const iter &out, const iter &err, const iter &param, const iter &measure_rss)
 	{
 		try
@@ -372,9 +372,9 @@ namespace func
 		}
 		FUNC_END(exec);
 	}
-	
+
 	// compile
-	
+
 	iter compile(const iter &cases, const iter &language, const iter &source, const iter &target, const iter &O2, const iter &define)
 	{
 		try
@@ -400,6 +400,14 @@ namespace func
 			if (_LANG == "c++11")
 			{
 				cmd = "g++ -x c++ -std=c++11 ";
+				for (const std::string &x: _SRC) cmd += x + " ";
+				cmd += " -o " + _TAR;
+				if (_O2) cmd += " -O2 ";
+				for (const std::string &x: _DEF) cmd += " -D" + x;
+			} else
+			if (_LANG == "c++14")
+			{
+				cmd = "g++ -x c++ -std=c++14 ";
 				for (const std::string &x: _SRC) cmd += x + " ";
 				cmd += " -o " + _TAR;
 				if (_O2) cmd += " -O2 ";
@@ -446,9 +454,9 @@ namespace func
 		}
 		FUNC_END(compile);
 	}
-	
+
 	// diff
-	
+
 	iter diff(const iter &f1, const iter &f2, const iter &w_mode)
 	{
 		try
@@ -536,7 +544,7 @@ namespace func
 		}
 		FUNC_END(diff);
 	}
-	
+
 	iter bin_diff(const iter &f1, const iter &f2)
 	{
 		try
@@ -554,4 +562,3 @@ namespace func
 }
 
 #undef FUNC_END
-

@@ -35,7 +35,7 @@ namespace func
 	/*
 	 *	$ copy : file copy
 	 *	@1 : src : str
-	 *	@2 : tar : str 
+	 *	@2 : tar : str
 	 */
 	void copy(const iter &src, const iter &tar);
 	/*
@@ -50,7 +50,7 @@ namespace func
 	 *   @return : the list.
 	 */
 	iter split(const iter &str, const iter &pat = _I_(new v_str(" \t\r\n")));
-	
+
 	/*
 	 * $ log : output a log
 	 * @1 content : str.
@@ -87,7 +87,7 @@ namespace func
 	/*
 	 *	$ compile : compile with certian options.
 	 *	@1 cases : null, int or list of int. testcases involved.
-	 *	@2 language : str. "c++" / "c++11" / "c" / "pascal".
+	 *	@2 language : str. "c++" / "c++11" / "c++14" / "c" / "pascal".
 	 *	@3 source : str or list of str. path to source.
 	 *	@4 target : str. path to binary target.
 	 *	@5 O2 : bool. whether to compile with "O2"
@@ -105,7 +105,7 @@ namespace func
 		 const iter &O2 = _I_(new v_bool(DEFAULT_O2)),
 		 const iter &define = _I_(new v_list(std::vector<iter>(1,_I_(new v_str(DEFAULT_DEFINE)))))
 		);
-	
+
 	// diff
 	/*
 	 *	$ diff : compare two files. WARNING : THIS diff IS NOT BINARY SAFE AND NOT SUPPORTING NON-ASCII CHARATERS.
@@ -127,7 +127,7 @@ namespace func
 	 *			["f2"] : str. word in file two.
 	 */
 	iter diff(const iter &f1, const iter &f2, const iter &w_mode = _I_(new v_int(DEFAULT_W_MODE)));
-	
+
 	/*
 	 *	$ bin_diff : binary diff. this diff is binary safe.
 	 *	@1 f1 : str. path to file one.
@@ -135,7 +135,7 @@ namespace func
 	 *	@return : bool. whether they differ.
 	 */
 	iter bin_diff(const iter &f1, const iter &f2);
-	
+
 	/********** vjudge_hack.cpp **********/
 	/*
 	 *	$ vjudge_hack : hack vjudge to run programs. it requires internet access to vjudge.
