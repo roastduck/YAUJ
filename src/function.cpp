@@ -202,7 +202,7 @@ namespace func
 	{
 		try
 		{
-			system(("rm "+file->as_str()).c_str());
+			system(("rm -f "+file->as_str()).c_str());
 		}
 		FUNC_END(remove);
 	}
