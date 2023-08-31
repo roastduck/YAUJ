@@ -394,7 +394,7 @@ namespace func
 				cmd = "g++ -x c++ -std=gnu++98 ";
 				for (const std::string &x: _SRC) cmd += x + " ";
 				cmd += " -o " + _TAR;
-				if (_O2) cmd += " -O2 ";
+				if (_O2) cmd += " -O2 -fno-tree-ch ";
 				for (const std::string &x: _DEF) cmd += " -D" + x;
 			} else
 			if (_LANG == "c++11")
@@ -402,7 +402,7 @@ namespace func
 				cmd = "g++ -x c++ -std=c++11 ";
 				for (const std::string &x: _SRC) cmd += x + " ";
 				cmd += " -o " + _TAR;
-				if (_O2) cmd += " -O2 ";
+				if (_O2) cmd += " -O2 -fno-tree-ch ";
 				for (const std::string &x: _DEF) cmd += " -D" + x;
 			} else
 			if (_LANG == "c++14")
@@ -410,7 +410,7 @@ namespace func
 				cmd = "g++ -x c++ -std=c++14 ";
 				for (const std::string &x: _SRC) cmd += x + " ";
 				cmd += " -o " + _TAR;
-				if (_O2) cmd += " -O2 ";
+				if (_O2) cmd += " -O2 -fno-tree-ch ";
 				for (const std::string &x: _DEF) cmd += " -D" + x;
 			} else
 			if (_LANG == "c")
@@ -418,7 +418,7 @@ namespace func
 				cmd = "gcc -x c ";
 				for (const std::string &x: _SRC) cmd += x + " ";
 				cmd += " -o " + _TAR;
-				if (_O2) cmd += " -O2 ";
+				if (_O2) cmd += " -O2 -fno-tree-ch ";
 				for (const std::string &x: _DEF) cmd += " -D" + x;
 				cmd += " -lm";
 			} else
