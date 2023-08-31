@@ -41,11 +41,11 @@ Json::Value dumpCmd(const std::string &cmd, const std::string &dir)
 	{
 		int exitCode;
 		waitpid(child, &exitCode, 0);
-		
+
 #ifdef DEBUG
 		std::clog << "uoj_run done with exit code " << WEXITSTATUS(exitCode) << std::endl;
 #endif
-		
+
 		bool error = (!WIFEXITED(exitCode) || WEXITSTATUS(exitCode));
 		if (error)
 			syslog(LOG_ERR, "%s", ("An error. cmd="+cmd+" dir="+dir).c_str());
@@ -84,11 +84,11 @@ Json::Value dumpCmd(const std::string &cmd, const std::string &dir)
 class Server : public AbstractStubServer
 {
 	const std::string webServer, dataPath, runPath, sourcePath;
-	
+
 	public :
 		Server(AbstractServerConnector &connector, serverVersion_t type, const std::string &_webServer, const std::string &_dataPath, const std::string &_runPath, const std::string &_sourcePath)
 			: webServer(_webServer), dataPath(_dataPath), runPath(_runPath), sourcePath(_sourcePath), AbstractStubServer(connector,type) {}
-		
+
 		virtual Json::Value run(int key, int pid, int sid, const Json::Value &submission)
 		{
 #ifdef DEBUG
@@ -107,7 +107,7 @@ class Server : public AbstractStubServer
 			runningCnt++, totCnt++;
 			const int _totCnt_ = totCnt;
 			pthread_mutex_unlock(&cntLock);
-			
+
 			Json::Value ret;
 			std::ostringstream ss;
 			ss << runPath << "/" << _totCnt_;
@@ -163,7 +163,7 @@ class Server : public AbstractStubServer
 			pthread_mutex_unlock(&cntLock);
 			return ret;
 		}
-		
+
 		/*virtual Json::Value loadConf(int pid)
 		{
 			pthread_mutex_lock(&cntLock);
@@ -181,7 +181,7 @@ class Server : public AbstractStubServer
 				return ret;
 			}
 		}*/
-		
+
 		virtual Json::Value judgeStatus()
 		{
 			Json::Value ret;
@@ -205,7 +205,7 @@ class Server : public AbstractStubServer
 			pthread_mutex_lock(&cntLock);
 			preserveCnt++;
 			pthread_mutex_unlock(&cntLock);
-			
+
 			int exitCode;
 			pid_t child = fork();
 			if (!child)
@@ -229,7 +229,7 @@ class Server : public AbstractStubServer
 				pthread_mutex_unlock(&cntLock);
 				return -1;
 			}
-			
+
 			int ret;
 			pthread_mutex_lock(&cntLock);
 			ret = rand();
@@ -237,7 +237,7 @@ class Server : public AbstractStubServer
 			pthread_mutex_unlock(&cntLock);
 			return ret;
 		}
-	
+
 		virtual bool cancel(int key)
 		{
 #ifdef DEBUG
@@ -251,7 +251,7 @@ class Server : public AbstractStubServer
 			pthread_mutex_unlock(&cntLock);
 			return ret;
 		}
-		
+
 		virtual std::string sync(int pid)
 		{
 #ifdef DEBUG
@@ -283,7 +283,7 @@ class Server : public AbstractStubServer
 				}
 				s.str("");
 				s << "make -i -B -C " << dataPath << '/' << pid << " > " << dataPath << '/' << pid << "/make.log 2>&1";
-				if (system(s.str().c_str())) 
+				if (system(s.str().c_str()))
 					syslog(LOG_WARNING,"sync : make failed. pid=%d",pid);
 				exit(0);
 			}
@@ -334,4 +334,3 @@ int main()
 	}
 	pause();
 }
-
