@@ -98,6 +98,12 @@ static std::vector<iter> toVector(const iter &src)
 
 namespace func
 {
+	// const
+
+	const std::string DEFAULT_TIME_LIMIT = "5000";
+	const std::string DEFAULT_MEMORY_LIMIT = "524288";
+	const std::string DEFAULT_STACK_LIMIT = "524288";
+
 	// math
 
 	iter ceil(const iter &x)
@@ -283,15 +289,15 @@ namespace func
 			if (_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("time"))][toVector(cases)[0]])
 				TL = _v_filemode[_I_(new v_int(4))][file][_I_(new v_str("time"))][toVector(cases)[0]]->as_str();
 			else
-				TL = "5000"; // spj limit
+				TL = DEFAULT_TIME_LIMIT;
 			if (_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("memory"))][toVector(cases)[0]])
 				ML = _v_filemode[_I_(new v_int(4))][file][_I_(new v_str("memory"))][toVector(cases)[0]]->as_str();
 			else
-				ML = "524288";
+				ML = DEFAULT_MEMORY_LIMIT;
 			if (_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("stack"))][toVector(cases)[0]])
 				SL = _v_filemode[_I_(new v_int(4))][file][_I_(new v_str("stack"))][toVector(cases)[0]]->as_str();
 			else
-				SL = "8192";
+				SL = DEFAULT_STACK_LIMIT;
 			if (!src || !_v_filemode[_I_(new v_int(2))][src])
 				OTHER = " --unsafe ";
 			else
