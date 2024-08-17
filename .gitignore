@@ -16,3 +16,4 @@ test/run
 *.swp
 !initenv_jammy.sh
 !daemon.json
+!yaujd.service
