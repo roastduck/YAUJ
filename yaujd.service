@@ -1,0 +1,19 @@
+[Unit]
+Description=YAUJ Judger Service
+After=network.target
+
+[Service]
+User=www-data
+Environment="ONLINE_JUDGE=1"
+ExecStart=/usr/bin/yauj_daemon
+Restart=on-failure
+TimeoutSec=5s
+
+# Hardening
+ProtectSystem=full
+SystemCallArchitectures=native
+MemoryDenyWriteExecute=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

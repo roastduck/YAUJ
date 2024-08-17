@@ -17,7 +17,7 @@ build/abstractstubserver.h : src/spec.json
 	jsonrpcstub src/spec.json --cpp-server=AbstractStubServer --cpp-server-file=build/abstractstubserver.h
 
 build/yauj_judge : build/decl_part build/init_part build/run_part src/main.cpp src/interpreter.cpp src/function.cpp src/interpreter.h src/function.h src/config.h src/uoj_env.h src/vjudge_hack.cpp
-	g++ src/interpreter.cpp src/function.cpp src/vjudge_hack.cpp src/main.cpp -o build/yauj_judge -std=c++11 -ljsoncpp -lboost_regex -lcurl -Isrc -Ibuild -g -Wall -DDEBUG
+	g++ src/interpreter.cpp src/function.cpp src/vjudge_hack.cpp src/main.cpp -o build/yauj_judge -std=c++14 -ljsoncpp -lboost_regex -lcurl -Isrc -Ibuild -g -Wall -DDEBUG
 
 build/decl_part build/init_part build/run_part : build/parser init.src run.src
 	rm -f build/decl_part build/init_part build/run_part
