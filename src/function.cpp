@@ -100,9 +100,9 @@ namespace func
 {
 	// const
 
-	const std::string DEFAULT_TIME_LIMIT = "5000";
-	const std::string DEFAULT_MEMORY_LIMIT = "524288";
-	const std::string DEFAULT_STACK_LIMIT = "524288";
+	const std::string DEFAULT_TIME_LIMIT = "30000";
+	const std::string DEFAULT_MEMORY_LIMIT = "2097152";
+	const std::string DEFAULT_STACK_LIMIT = "2097152";
 
 	// math
 
