@@ -4,8 +4,8 @@ config_file = /etc/yauj/daemon.json
 
 all : build/abstractstubserver.h build/libyauj.so build/daemon build/parser
 
-build/libyauj.so : src/interpreter.cpp src/function.cpp
-	g++ src/interpreter.cpp src/function.cpp src/vjudge_hack.cpp -std=c++11 -fPIC -shared -lboost_regex -ljsoncpp -lcurl -o build/libyauj.so -O2
+build/libyauj.so : src/interpreter.cpp src/interpreter.h src/function.cpp src/function.h src/config.h src/vjudge_hack.cpp
+	g++ src/interpreter.cpp src/function.cpp src/vjudge_hack.cpp -std=c++14 -fPIC -shared -lboost_regex -ljsoncpp -lcurl -o build/libyauj.so -O2
 
 build/daemon : src/daemon.cpp build/abstractstubserver.h src/config_daemon.h
 	g++ src/daemon.cpp -o build/daemon -pthread -ljsoncpp -lmicrohttpd -ljsonrpccpp-common -ljsonrpccpp-server -Isrc -Ibuild -O2
@@ -24,7 +24,7 @@ build/parser.tab.c build/parser.tab.h : | src/parser.y
 	mv parser.tab.c parser.tab.h build/
 
 
-install : build/daemon distribute.makefile build/parser
+install : build/daemon build/parser build/libyauj.so distribute.makefile
 	cp build/daemon /usr/bin/yauj_daemon
 	mkdir -p /home/judge/resource
 	-chmod 777 /home/judge
