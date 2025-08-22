@@ -60,12 +60,12 @@ namespace func
 	// execute
 	/*
 	 *	$ exec : execute a executable file in sandbox
-	 *	@1 cases : null, int or list of int. testcases involved.
+	 *	@1 case_id : int. testcase involved.
 	 *	@2 file : str. file to be executed.
 	 *	@3 in : str. stdin redirection.
 	 *	@4 out : str. stdout redirection.
 	 *	@5 err : str. stderr redirection.
-	 *	@6 param : parameters.
+	 *	@6 param : extra parameters passed to the executable.
 	 *	@return : dict.
 	 *		["status"] : str. "accepted" / "memory limit exceeded" / "output limit exceeded" / "time limit exceeded" / "runtime error" / "internal error" / "dangerous syscall". And you can add "partially accepted", "spj error". Function `compile` would generate "compile error".
 	 *		["time"] : int. cpu time in ms.
@@ -74,7 +74,7 @@ namespace func
 	 */
 	iter exec
 		(
-		 const iter &cases,
+		 const iter &case_id,
 		 const iter &file,
 		 const iter &in = _I_(new v_str("/dev/null")),
 		 const iter &out = _I_(new v_str("/dev/null")),

@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 3.8.2.  */
 
 /* Skeleton interface for Bison GLR parsers in C
 
-   Copyright (C) 2002-2015 Free Software Foundation, Inc.
+   Copyright (C) 2002-2015, 2018-2021 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -40,48 +40,53 @@
 extern int yydebug;
 #endif
 
-/* Token type.  */
+/* Token kinds.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
   enum yytokentype
   {
-    IDENTIFIER = 258,
-    INTEGER = 259,
-    FLOAT = 260,
-    EQ = 261,
-    FEQ = 262,
-    NEQ = 263,
-    NFEQ = 264,
-    AND = 265,
-    OR = 266,
-    FOR = 267,
-    WHILE = 268,
-    DO = 269,
-    IF = 270,
-    VMINUS = 271,
-    VPOSI = 272,
-    PLUSPLUS = 273,
-    MINUSMINUS = 274,
-    VFPLUSPLUS = 275,
-    VFMINUSMINUS = 276,
-    ELSE = 277,
-    TRUE = 278,
-    FALSE = 279,
-    STR = 280,
-    SUBACCESS = 281,
-    FOREACH = 282,
-    ARROW = 283,
-    AS = 284,
-    BREAK = 285,
-    CONTINUE = 286,
-    TRY = 287,
-    CATCH = 288,
-    THROW = 289,
-    PLUSEQ = 290,
-    MINUSEQ = 291,
-    LEQ = 292,
-    GEQ = 293
+    YYEMPTY = -2,
+    YYEOF = 0,                     /* "end of file"  */
+    YYerror = 256,                 /* error  */
+    YYUNDEF = 257,                 /* "invalid token"  */
+    IDENTIFIER = 258,              /* IDENTIFIER  */
+    INTEGER = 259,                 /* INTEGER  */
+    FLOAT = 260,                   /* FLOAT  */
+    EQ = 261,                      /* EQ  */
+    FEQ = 262,                     /* FEQ  */
+    NEQ = 263,                     /* NEQ  */
+    NFEQ = 264,                    /* NFEQ  */
+    AND = 265,                     /* AND  */
+    OR = 266,                      /* OR  */
+    FOR = 267,                     /* FOR  */
+    WHILE = 268,                   /* WHILE  */
+    DO = 269,                      /* DO  */
+    IF = 270,                      /* IF  */
+    VMINUS = 271,                  /* VMINUS  */
+    VPOSI = 272,                   /* VPOSI  */
+    PLUSPLUS = 273,                /* PLUSPLUS  */
+    MINUSMINUS = 274,              /* MINUSMINUS  */
+    VFPLUSPLUS = 275,              /* VFPLUSPLUS  */
+    VFMINUSMINUS = 276,            /* VFMINUSMINUS  */
+    ELSE = 277,                    /* ELSE  */
+    TRUE = 278,                    /* TRUE  */
+    FALSE = 279,                   /* FALSE  */
+    STR = 280,                     /* STR  */
+    SUBACCESS = 281,               /* SUBACCESS  */
+    FOREACH = 282,                 /* FOREACH  */
+    ARROW = 283,                   /* ARROW  */
+    AS = 284,                      /* AS  */
+    BREAK = 285,                   /* BREAK  */
+    CONTINUE = 286,                /* CONTINUE  */
+    TRY = 287,                     /* TRY  */
+    CATCH = 288,                   /* CATCH  */
+    THROW = 289,                   /* THROW  */
+    PLUSEQ = 290,                  /* PLUSEQ  */
+    MINUSEQ = 291,                 /* MINUSEQ  */
+    LEQ = 292,                     /* LEQ  */
+    GEQ = 293                      /* GEQ  */
   };
+  typedef enum yytokentype yytoken_kind_t;
 #endif
 
 /* Value type.  */
