@@ -19,6 +19,8 @@
 
 #define FUNC_END(name) catch (const std::runtime_error &e) { throw std::runtime_error(#name" : "+std::string(e.what())); }
 
+#define toVector(p) ((p->to() & LIST) ? p->as_list() : std::vector<iter>(1, p))
+
 static char *escape(char *s)
 {
 	for (char *i=s;*i;i++)
@@ -87,13 +89,6 @@ static double getFloat(char *st, char *en)
 			if (*i!='.' || ++dot>1)
 				return nan("");
 	return atof(st)*(minus?-1:1);
-}
-
-static std::vector<iter> toVector(const iter &src)
-{
-	//if (!src.ptr) return std::vector<iter>();
-	if (src->to() & LIST) return src->as_list();
-	return std::vector<iter>(1,src);
 }
 
 namespace func
@@ -258,14 +253,16 @@ namespace func
 
 	// report
 
-	/*void report(const iter &score, const iter &verdict, const iter &time, const iter &memory, const iter &message)
+	/*
+	void report(const iter &score, const iter &verdict, const iter &time, const iter &memory, const iter &message)
 	{
 		try
 		{
 			std::cout << score->as_float() << ' ' << verdict->as_str() << ' ' << time->as_int() << ' ' << memory->as_int() << ' ' << message->as_str() << std::endl;
 		}
 		FUNC_END(report);
-	}*/
+	}
+	*/
 
 	void log(const iter &content)
 	{
@@ -275,43 +272,45 @@ namespace func
 
 	// execute
 
-	iter exec(const iter &cases, const iter &file, const iter &in, const iter &out, const iter &err, const iter &param, const iter &measure_rss)
+	iter exec(const iter &case_id, const iter &file, const iter &in, const iter &out, const iter &err, const iter &param, const iter &measure_rss)
 	{
 		try
 		{
-			std::map<std::string,iter> ret;
+			auto &filemode = _v_filemode->as_list();
+			std::map<std::string, iter> ret;
 			std::string COMM, IN, OUT, ERR, TL, ML, SL, RB, WB, OTHER, USERSS;
-			iter src=_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("source"))];
+			iter src = filemode[4][file][_I_(new v_str("source"))];
 			COMM = file->as_str()+" "+param->as_str();
 			IN = in->as_str();
 			OUT = out->as_str();
 			ERR = err->as_str();
-			if (_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("time"))][toVector(cases)[0]])
-				TL = _v_filemode[_I_(new v_int(4))][file][_I_(new v_str("time"))][toVector(cases)[0]]->as_str();
+			iter iter_str;
+			if (iter_str = filemode[4][file][_I_(new v_str("time"))][case_id])
+				TL = iter_str->as_str();
 			else
 				TL = DEFAULT_TIME_LIMIT;
-			if (_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("memory"))][toVector(cases)[0]])
-				ML = _v_filemode[_I_(new v_int(4))][file][_I_(new v_str("memory"))][toVector(cases)[0]]->as_str();
+			if (iter_str = filemode[4][file][_I_(new v_str("memory"))][case_id])
+				ML = iter_str->as_str();
 			else
 				ML = DEFAULT_MEMORY_LIMIT;
-			if (_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("stack"))][toVector(cases)[0]])
-				SL = _v_filemode[_I_(new v_int(4))][file][_I_(new v_str("stack"))][toVector(cases)[0]]->as_str();
+			if (iter_str = filemode[4][file][_I_(new v_str("stack"))][case_id])
+				SL = iter_str->as_str();
 			else
 				SL = DEFAULT_STACK_LIMIT;
-			if (!src || !_v_filemode[_I_(new v_int(2))][src])
+			bool is_spj = !(src && filemode[2][src]);
+			if (is_spj)
 				OTHER = " --unsafe ";
-			else
-			{
-				if (_v_filemode[_I_(new v_int(0))])
-					for (auto &x : _v_filemode[_I_(new v_int(0))]->as_dict())
+			else {
+				if (filemode[0])
+					for (auto &x : filemode[0]->as_dict())
 						for (const auto &y : toVector(x.second[_I_(new v_str("by"))]))
 							if (y == src)
 							{
 								RB += " --add-readable="+x.first;
 								break;
 							}
-				if (_v_filemode[_I_(new v_int(1))])
-					for (auto &x : _v_filemode[_I_(new v_int(1))]->as_dict())
+				if (filemode[1])
+					for (auto &x : filemode[1]->as_dict())
 						for (const auto &y : toVector(x.second[_I_(new v_str("by"))]))
 							if (y == src)
 							{
@@ -347,32 +346,25 @@ namespace func
 			ret["time"] = _I_(new v_int(u_time));
 			ret["memory"] = _I_(new v_int(u_mem));
 			ret["exitcode"] = _I_(new v_int(u_ret));
-			if (src && _v_filemode[_I_(new v_int(2))][src])
-				for (const auto &x : toVector(cases))
-				{
-					_v_result[x][_I_(new v_str("time"))][_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("source"))]]=ret["time"];
-					_v_result[x][_I_(new v_str("memory"))][_v_filemode[_I_(new v_int(4))][file][_I_(new v_str("source"))]]=ret["memory"];
+			if (is_spj) {
+				if (u_stat) {
+					_v_result[case_id][_I_(new v_str("status"))] = _I_(new v_str("spj error"));
+					_v_result[case_id][_I_(new v_str("score"))] = _I_(new v_int(0));
+					throw user_error();
 				}
-			if (u_stat)
-			{
-				for (const auto &x : toVector(cases))
-				{
-					if (src && _v_filemode[_I_(new v_int(2))][src])
-						_v_result[x][_I_(new v_str("status"))]=ret["status"];
-					else
-						_v_result[x][_I_(new v_str("status"))]=_I_(new v_str("spj error"));
-					_v_result[x][_I_(new v_str("score"))]=_I_(new v_int(0));
+			} else {
+				_v_result[case_id][_I_(new v_str("time"))][src] = ret["time"];
+				_v_result[case_id][_I_(new v_str("memory"))][src] = ret["memory"];
+				if (u_stat) {
+					_v_result[case_id][_I_(new v_str("status"))] = ret["status"];
+					_v_result[case_id][_I_(new v_str("score"))] = _I_(new v_int(0));
+					throw user_error();
 				}
-				throw user_error();
-			}
-			if (u_ret && src && _v_filemode[_I_(new v_int(2))][src])
-			{
-				for (const auto &x : toVector(cases))
-				{
-					_v_result[x][_I_(new v_str("status"))]=_I_(new v_str("runtime error"));
-					_v_result[x][_I_(new v_str("score"))]=_I_(new v_int(0));
+				if (u_ret) {
+					_v_result[case_id][_I_(new v_str("status"))] = _I_(new v_str("runtime error"));
+					_v_result[case_id][_I_(new v_str("score"))] = _I_(new v_int(0));
+					throw user_error();
 				}
-				throw user_error();
 			}
 			return _I_(new v_dict(ret));
 		}
@@ -539,13 +531,15 @@ namespace func
 					r_max_rel_diff = std::max(std::abs(res1-res2)/res2,r_max_rel_diff);
 				}
 			}
-			iter ret = _I_(new v_dict());
-			ret->as_dict()["verdict"] = _I_(new v_bool(r_verdict));
-			ret->as_dict()["max_abs_diff"] = _I_(new v_float(r_max_abs_diff));
-			ret->as_dict()["max_rel_diff"] = _I_(new v_float(r_max_rel_diff));
-			ret->as_dict()["first_diff"] = _I_(new v_dict());
-			ret->as_dict()["first_diff"]->as_dict()["f1"] = _I_(new v_str(r_first_diff.first));
-			ret->as_dict()["first_diff"]->as_dict()["f2"] = _I_(new v_str(r_first_diff.second));
+			iter ret = _I_(new v_dict({
+				{"verdict", _I_(new v_bool(r_verdict))},
+				{"max_abs_diff", _I_(new v_float(r_max_abs_diff))},
+				{"max_rel_diff", _I_(new v_float(r_max_rel_diff))},
+				{"first_diff", _I_(new v_dict({
+					{"f1", _I_(new v_str(r_first_diff.first))},
+					{"f2", _I_(new v_str(r_first_diff.second))},
+				}))},
+			}));
 			return ret;
 		}
 		FUNC_END(diff);

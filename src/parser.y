@@ -33,7 +33,7 @@ void addSymbol(char *s)
 
 %}
 
-%error-verbose
+%define parse.error verbose
 %glr-parser
 %expect 1
 %expect-rr 1
@@ -69,7 +69,7 @@ nonemp_contents :
 |	nonemp_contents stmt	{ cat("--",&$$,$1,$2); }
 
 for :
-    FOR '(' expr ';' expr ';' expr ')' block_or_stmt
+	FOR '(' expr ';' expr ';' expr ')' block_or_stmt
 						{ cat("---------",&$$,$1,$2,$3,$4,$5,$6,$7,$8,$9); }
 ;
 
@@ -97,7 +97,7 @@ if :
 ;
 
 try :
-    TRY block CATCH block	{ cat("----",&$$,$1,$2,$3,$4); }
+	TRY block CATCH block	{ cat("----",&$$,$1,$2,$3,$4); }
 ;
 
 condition :
@@ -111,7 +111,7 @@ block_or_stmt :
 
 block :
 	'{' contents '}'		{ cat("+-+",&$$,"\n{\n",$2,"\n}\n"); }
-;	
+;
 
 stmt :
 	expr ';'				{
@@ -122,7 +122,7 @@ stmt :
 						}
 |	BREAK ';'				{ cat("-+",&$$,$1,";\n"); }
 |	CONTINUE ';'			{ cat("-+",&$$,$1,";\n"); }
-|	if	
+|	if
 |	while
 |	do_while
 |	for
@@ -244,28 +244,34 @@ int yyerror(char *s)
 int main()
 {
 	FILE *decl_part, *init_part, *run_part;
-	decl_part = fopen("decl_part","w");
-	init_part = fopen("init_part","w");
-	run_part = fopen("run_part","w");
 	int stat;
+
 	puts("parsing init.src");
 	freopen("init.src","r",stdin);
 	strcpy(curFileName,"Initialization Part");
 	stat = yyparse();
 	if (stat) return stat;
+	init_part = fopen("init_part","w");
 	fputs(body,init_part);
 	fclose(stdin), fclose(init_part);
+
 	puts("parsing run.src");
 	yylineno=1;
 	freopen("run.src","r",stdin);
 	strcpy(curFileName,"Run Part");
 	stat = yyparse();
 	if (stat) return stat;
+	run_part = fopen("run_part","w");
 	fputs(body,run_part);
 	fclose(stdin), fclose(run_part);
-	addSymbol("_v_submission");
+
 	addSymbol("_v_filemode");
+	addSymbol("_v_submission");
 	addSymbol("_v_result");
+	addSymbol("_v_grouping");
+	addSymbol("_v_case2group");
+
+	decl_part = fopen("decl_part","w");
 	if (front.symbol)
 	{
 		NODE *tail = &front;
@@ -278,4 +284,3 @@ int main()
 	}
 	return 0;
 }
-
