@@ -442,10 +442,11 @@ namespace func
 			{
 				for (const iter &x : toVector(cases))
 				{
-					_v_result[x][_I_(new v_str("status"))]=_I_(new v_str("compile error"));
-					_v_result[x][_I_(new v_str("score"))]=_I_(new v_int(0));
-					_v_result[x][_I_(new v_str("message"))]=ret["message"];
+					auto &obj = _v_result[x]->as_dict();
+					obj["status"] = _I_(new v_str("compile error"));
+					obj["score"] = _I_(new v_int(0));
 				}
+				_v_result[toVector(cases)[0]][_I_(new v_str("message"))] = ret["message"];
 				throw user_error();
 			}
 			return _I_(new v_dict(ret));
