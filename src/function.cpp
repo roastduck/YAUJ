@@ -91,6 +91,41 @@ static double getFloat(char *st, char *en)
 	return atof(st)*(minus?-1:1);
 }
 
+static void trimLeadingWhitespace(std::string &s) {
+	// Find the first character that is not a whitespace
+	auto it = std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+		return !std::isspace(ch);
+	});
+
+	// Erase characters from the beginning up to the first non-whitespace character
+	s.erase(s.begin(), it);
+}
+
+static void trimTrailingWhitespace(std::string& s) {
+	// Find the first non-whitespace character from the end
+	auto it = std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
+		return !std::isspace(ch);
+	});
+
+	// Erase characters from the found position to the end of the string
+	s.erase(it.base(), s.end());
+}
+
+static std::string getExecutablePath(std::string exe) {
+	std::string cmd = "which " + exe;
+	FILE* pipe = popen(cmd.c_str(), "r");
+	if (!pipe)
+		throw std::runtime_error("compiler " + exe + " not found");
+	char buffer[256];
+	std::string path = "";
+	if (fgets(buffer, 256, pipe) != NULL) {
+		path += buffer;
+	}
+	pclose(pipe);
+	trimTrailingWhitespace(path);
+	return '"' + path + '"';
+}
+
 namespace func
 {
 	// const
@@ -386,60 +421,75 @@ namespace func
 			_O2 = O2->as_bool();
 			for (const iter &x: toVector(define)) _DEF.push_back(x->as_str());
 			_DEF.push_back("ONLINE_JUDGE");
-			std::string cmd;
-			if (_LANG == "c++")
-			{
-				cmd = "g++ -x c++ -std=gnu++98 ";
-				for (const std::string &x: _SRC) cmd += x + " ";
-				cmd += " -o " + _TAR;
-				if (_O2) cmd += " -O2 -fno-tree-ch ";
-				for (const std::string &x: _DEF) cmd += " -D" + x;
+			std::string exe, args = "", sandbox_args = "";
+			if (_LANG.rfind("c++", 0) == 0) {
+				exe = "g++";
+				args = " -x c++ -static -fmax-errors=10";
+				sandbox_args = " --add-readable-raw /opt/gcc-12.3.0/";
+				if (_LANG == "c++")
+					args += " -std=gnu++98";
+				else
+					args += " -std=" + _LANG;
+				for (const std::string &x: _SRC) args += " " + x;
+				args += " -o " + _TAR;
+				if (_O2) args += " -O2 -fno-tree-ch";
+				for (const std::string &x: _DEF) args += " -D" + x;
+			} else if (_LANG == "c") {
+				exe = "gcc";
+				args = " -x c -lm -static -fmax-errors=10";
+				sandbox_args = " --add-readable-raw /opt/gcc-12.3.0/";
+				for (const std::string &x: _SRC) args += " " + x;
+				args += " -o " + _TAR;
+				if (_O2) args += " -O2 -fno-tree-ch";
+				for (const std::string &x: _DEF) args += " -D" + x;
+			} else if (_LANG == "pascal") {
+				exe = "fpc";
+				args = " -static";
+				for (const std::string &x: _SRC) args += " " + x;
+				args += " -o" + _TAR;
+				if (_O2) args += " -O2";
+				for (const std::string &x: _DEF) args += " -d" + x;
 			} else
-			if (_LANG == "c++11")
-			{
-				cmd = "g++ -x c++ -std=c++11 ";
-				for (const std::string &x: _SRC) cmd += x + " ";
-				cmd += " -o " + _TAR;
-				if (_O2) cmd += " -O2 -fno-tree-ch ";
-				for (const std::string &x: _DEF) cmd += " -D" + x;
-			} else
-			if (_LANG == "c++14")
-			{
-				cmd = "g++ -x c++ -std=c++14 ";
-				for (const std::string &x: _SRC) cmd += x + " ";
-				cmd += " -o " + _TAR;
-				if (_O2) cmd += " -O2 -fno-tree-ch ";
-				for (const std::string &x: _DEF) cmd += " -D" + x;
-			} else
-			if (_LANG == "c")
-			{
-				cmd = "gcc -x c ";
-				for (const std::string &x: _SRC) cmd += x + " ";
-				cmd += " -o " + _TAR;
-				if (_O2) cmd += " -O2 -fno-tree-ch ";
-				for (const std::string &x: _DEF) cmd += " -D" + x;
-				cmd += " -lm";
-			} else
-			if (_LANG == "pascal")
-			{
-				cmd = "fpc ";
-				for (const std::string &x: _SRC) cmd += x + " ";
-				cmd += " -o" + _TAR;
-				if (_O2) cmd += " -O2 ";
-				for (const std::string &x: _DEF) cmd += " -d" + x;
-			} else
-				throw std::runtime_error("unknown language : "+_LANG);
-			cmd += " 2>&1 ";
-			std::map<std::string,iter> ret;
-			FILE *stat = popen(cmd.c_str(),"r");
-			static char buff[PIPE_READ_BUFF_MAX+1]; // null-termination
-			buff[fread(buff,1,PIPE_READ_BUFF_MAX,stat)]=0;
-			if (!feof(stat))
+				throw std::runtime_error("unknown language : " + _LANG);
+			std::string sbcmd = "uoj_run -T 10000 -M 2097152 -t compiler -e compile.log" + sandbox_args + ' ' + getExecutablePath(exe) + args;
+#ifdef DEBUG
+			std::clog << sbcmd << std::endl;
+#endif
+			FILE *sandbox = popen(sbcmd.c_str(), "r");
+			int u_stat, u_time, u_mem, u_ret;
+			fscanf(sandbox, "%d%d%d%d", &u_stat, &u_time, &u_mem, &u_ret);
+#ifdef DEBUG
+			std::clog << u_stat << ' ' << u_time << ' ' << u_mem << ' ' << u_ret << std::endl;
+#endif
+			pclose(sandbox);
+			std::map<std::string, iter> ret;
+			ret["time"] = _I_(new v_int(u_time));
+			ret["memory"] = _I_(new v_int(u_mem));
+			ret["exitcode"] = _I_(new v_int(u_ret));
+
+			FILE *logFile = fopen("compile.log", "r");
+			static char buff[PIPE_READ_BUFF_MAX + 1] = "";
+			buff[fread(buff, 1, PIPE_READ_BUFF_MAX, logFile)] = 0;
+			if (!feof(logFile))
 				std::cerr << "[WARNING] compile : PIPE_READ_BUFF_MAX exceeded" << std::endl;
-			ret["exitcode"]=_I_(new v_int(pclose(stat)));
-			ret["message"]=_I_(new v_str(escape(buff)));
-			if (ret["exitcode"])
-			{
+			fclose(logFile);
+			std::string compileLog = buff;
+			trimLeadingWhitespace(compileLog);
+
+			if (!u_ret) ret["message"] = _I_(new v_str("compile ok\n" + compileLog));
+			else {
+				std::string stat_message = "";
+				switch (u_stat) {
+					case RS_AC : break;
+					case RS_TLE: stat_message = "time limit exceeded"; break;
+					case RS_MLE: stat_message = "memory limit exceeded"; break;
+					case RS_OLE: stat_message = "output limit exceeded"; break;
+					case RS_RE : stat_message = "runtime error"; break;
+					case RS_JGF: stat_message = "internal error"; break;
+					case RS_DGS: stat_message = "dangerous syscall"; break;
+					default    : stat_message = "unknown error"; break;
+				}
+				ret["message"] = _I_(new v_str("compile error" + (stat_message.empty() ? "" : " (sandbox returned " + stat_message + ")") + '\n' + compileLog));
 				for (const iter &x : toVector(cases))
 				{
 					auto &obj = _v_result[x]->as_dict();
